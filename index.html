@@ -245,6 +245,39 @@ td.pl-total .u{font-size:9px;color:var(--muted);font-weight:500;display:block;}
 .foodcard .fedit:hover{color:var(--text);border-color:var(--border-2);}
 .gen-btn{width:100%;margin-top:14px;padding:15px;border-radius:var(--r);border:1.5px dashed var(--border-2);background:transparent;color:var(--muted);font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;cursor:pointer;transition:.2s;}
 .gen-btn:hover{border-color:var(--meal);color:var(--text);background:color-mix(in srgb,var(--meal) 8%,transparent);}
+.plan-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.pa-btn{flex:1;min-width:120px;border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:12px;padding:11px 10px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:.16s;backdrop-filter:blur(10px);}
+.pa-btn:hover{border-color:var(--border-2);transform:translateY(-1px);}
+.pa-btn.danger{flex:0 0 auto;min-width:0;color:var(--muted);}
+.pa-btn.danger:hover{color:#f87171;border-color:#f8717155;}
+.shopcat{margin-bottom:16px;}
+.shopcat-h{font-family:'Space Grotesk',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;margin:0 2px 8px;display:flex;align-items:center;gap:7px;}
+.shopcat-h .ce{font-size:14px;}
+.shop-item{display:flex;align-items:center;gap:11px;padding:10px 11px;border:1px solid var(--border);border-radius:11px;background:var(--bg-2);margin-bottom:6px;transition:.15s;}
+.shop-item.got{opacity:.5;}
+.shop-item.got .si-name{text-decoration:line-through;}
+.shop-item .cbox{width:22px;height:22px;border-radius:7px;border:2px solid var(--border-2);flex:0 0 auto;display:grid;place-items:center;cursor:pointer;transition:.15s;}
+.shop-item.got .cbox{background:#34d399;border-color:#34d399;}
+.shop-item .cbox svg{width:12px;height:12px;stroke-width:3.5;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke:#04160f;opacity:0;}
+.shop-item.got .cbox svg{opacity:1;}
+.si-main{flex:1;min-width:0;cursor:pointer;display:flex;flex-direction:column;gap:1px;}
+.si-name{font-size:14px;font-weight:500;}
+.si-qty{font-family:'Space Grotesk',sans-serif;font-size:12px;color:var(--muted);font-weight:600;}
+.si-pantry{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:13px;flex:0 0 auto;opacity:.55;transition:.15s;}
+.si-pantry:hover{opacity:1;border-color:var(--border-2);}
+.pantry-sec{margin-top:6px;padding-top:12px;border-top:1px dashed var(--border);}
+.shop-empty{text-align:center;color:var(--muted);padding:24px;font-size:14px;}
+.cook-item{display:flex;align-items:center;gap:13px;padding:12px 13px;border:1px solid var(--border);border-radius:12px;background:var(--bg-2);margin-bottom:8px;}
+.cook-item .ci-n{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:var(--meal);min-width:30px;text-align:center;line-height:1;}
+.cook-item .ci-n small{display:block;font-size:9px;color:var(--muted);font-weight:600;text-transform:uppercase;}
+.cook-item .ci-b{flex:1;min-width:0;}
+.cook-item .ci-food{font-weight:600;font-size:14.5px;}
+.cook-item .ci-meta{font-size:12px;color:var(--muted);margin-top:2px;}
+.tpl-item{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid var(--border);border-radius:11px;background:var(--bg-2);margin-bottom:7px;}
+.tpl-item .tn{flex:1;font-size:14px;font-weight:500;}
+.tpl-item button{border:1px solid var(--border);background:transparent;color:var(--muted);border-radius:8px;padding:7px 11px;font-size:12px;font-weight:600;cursor:pointer;transition:.14s;}
+.tpl-item button.ap:hover{color:var(--text);border-color:var(--border-2);}
+.tpl-item button.dl:hover{color:#f87171;border-color:#f8717155;}
 
 /* Modal */
 .overlay{position:fixed;inset:0;z-index:60;background:rgba(4,6,12,.6);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:16px;}
@@ -439,6 +472,30 @@ td.pl-total .u{font-size:9px;color:var(--muted);font-weight:500;display:block;}
   <div class="m-actions"><button class="btn" id="pick-new">+ Új étel</button><div class="spacer"></div><button class="btn prim" id="pick-done">Kész</button></div>
 </div></div>
 
+<!-- SHOPPING LIST -->
+<div class="overlay" id="shopOv"><div class="modal">
+  <h3>🛒 Bevásárlólista</h3><div class="msub2" id="shopSub"></div>
+  <div id="shopBody"></div>
+  <div class="m-actions"><button class="btn" id="shop-share">📋 Másolás / megosztás</button><div class="spacer"></div><button class="btn prim" id="shop-close">Kész</button></div>
+</div></div>
+
+<!-- COOKING PLAN -->
+<div class="overlay" id="cookOv"><div class="modal">
+  <h3>👨‍🍳 Heti főzési terv</h3><div class="msub2" id="cookSub"></div>
+  <div id="cookBody"></div>
+  <div class="m-actions"><div class="spacer"></div><button class="btn prim" id="cook-close">Kész</button></div>
+</div></div>
+
+<!-- TEMPLATES -->
+<div class="overlay" id="tplOv"><div class="modal">
+  <h3>★ Heti sablonok</h3>
+  <div class="fld"><label>Aktuális hét mentése sablonként</label>
+    <div style="display:flex;gap:8px"><input type="text" id="tpl-name" placeholder="Pl. Fogyó hét" style="flex:1"><button class="btn prim" id="tpl-save">Mentés</button></div></div>
+  <label style="display:block;font-size:11.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:6px 0 8px">Mentett sablonok</label>
+  <div id="tplList"></div>
+  <div class="m-actions"><div class="spacer"></div><button class="btn" id="tpl-close">Bezár</button></div>
+</div></div>
+
 <script>
 "use strict";
 /* ---------- dayparts ---------- */
@@ -509,6 +566,11 @@ const saveChecks=()=>localStorage.setItem(K_CHECKS,JSON.stringify(checks));
 const saveTargets=()=>localStorage.setItem(K_TARGETS,JSON.stringify(targets));
 const saveFoods=()=>localStorage.setItem(K_FOODS,JSON.stringify(foods));
 const savePlan=()=>localStorage.setItem(K_PLAN,JSON.stringify(plan));
+const K_TEMPLATES="pl-templates",K_PANTRY="pl-pantry",K_SHOP="pl-shop";
+let templates=ld(K_TEMPLATES,[]),pantry=ld(K_PANTRY,[]),shopState=ld(K_SHOP,{});
+const saveTemplates=()=>localStorage.setItem(K_TEMPLATES,JSON.stringify(templates));
+const savePantry=()=>localStorage.setItem(K_PANTRY,JSON.stringify(pantry));
+const saveShop=()=>localStorage.setItem(K_SHOP,JSON.stringify(shopState));
 
 /* ---------- dates ---------- */
 const iso=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
@@ -731,7 +793,14 @@ function goalHTML(cat,label,pct,met,key,curVal,goalTxt,dec){
 
 function renderPlan(){
   const days=weekOf(curDate),todayISO=iso(new Date());
-  let h=`<div class="cal"><div class="cal-scroll"><table class="cal-t"><thead><tr><th class="plabel"></th>`;
+  let h=`<div class="plan-actions">
+    <button class="pa-btn" id="shopBtn">🛒 Bevásárlólista</button>
+    <button class="pa-btn" id="cookBtn">👨‍🍳 Főzési terv</button>
+    <button class="pa-btn" id="copyBtn">⧉ Múlt hét</button>
+    <button class="pa-btn" id="tplBtn">★ Sablonok</button>
+    <button class="pa-btn danger" id="clrBtn" title="Hét ürítése">🗑</button>
+  </div>`;
+  h+=`<div class="cal"><div class="cal-scroll"><table class="cal-t"><thead><tr><th class="plabel"></th>`;
   days.forEach(d=>{const t=iso(d)===todayISO;h+=`<th class="${t?'tdy':''}">${DAY_SH[wd(d)]}<span class="dn">${d.getDate()}</span></th>`;});
   h+=`</tr></thead><tbody>`;
   MEAL_ORDER.forEach(type=>{
@@ -751,8 +820,6 @@ function renderPlan(){
     h+=`<td class="pl-total ${cls}">${ri(kc)}<span class="u">/${ri(targets.kcal)}</span></td>`;});
   h+=`</tr></tbody></table></div></div>`;
 
-  h+=`<button class="gen-btn" id="genBtn">✨ Heti generálás — hamarosan (2. fázis)</button>`;
-
   h+=`<div class="section-h"><span class="t">Ételeim</span><button class="btn prim add" id="addFood">+ Új étel</button></div>`;
   h+=`<div class="foodgrid">`;
   if(!foods.length)h+=`<div class="emptyp" style="text-align:center">Még nincs étel. Vegyél fel egyet a „+ Új étel" gombbal.</div>`;
@@ -766,7 +833,11 @@ function renderPlan(){
   viewEl.querySelectorAll('[data-plan]').forEach(el=>el.addEventListener('click',()=>{const[dISO,type]=el.dataset.plan.split(':');openPick(dISO,type);}));
   viewEl.querySelectorAll('[data-food]').forEach(b=>b.addEventListener('click',()=>openFood(b.dataset.food)));
   document.getElementById('addFood').addEventListener('click',()=>openFood(null));
-  document.getElementById('genBtn').addEventListener('click',()=>alert("A heti automatikus generálás a 2. fázisban jön. Addig kézzel oszd be az ételeket a rácsban (koppints egy cellára)."));
+  document.getElementById('shopBtn').addEventListener('click',openShop);
+  document.getElementById('cookBtn').addEventListener('click',openCook);
+  document.getElementById('copyBtn').addEventListener('click',copyLastWeek);
+  document.getElementById('tplBtn').addEventListener('click',openTpl);
+  document.getElementById('clrBtn').addEventListener('click',clearWeek);
 }
 
 /* ---------- item modal ---------- */
@@ -896,6 +967,124 @@ document.getElementById('pick-new').addEventListener('click',()=>openFood(null))
 document.getElementById('pick-done').addEventListener('click',()=>pickOv.classList.remove('show'));
 pickOv.addEventListener('click',e=>{if(e.target===pickOv)pickOv.classList.remove('show');});
 
+/* ---------- shopping list / cooking plan / templates ---------- */
+const STORE_CATS=[
+  {id:'hus',name:'Hús & hal',icon:'🥩',keys:['csirke','marha','sertés','sertes','darált','daralt','bacon','sonka','kolbász','kolbasz','hal','lazac','tonhal','pulyka','comb','mell','hús','hus','virsli','szalonna','párizsi','parizsi']},
+  {id:'zoldseg',name:'Zöldség & gyümölcs',icon:'🥦',keys:['hagyma','fokhagyma','paradicsom','paprika','brokkoli','saláta','salata','uborka','répa','repa','burgonya','krumpli','banán','banan','alma','citrom','gyümölcs','gyumolcs','spenót','spenot','cukkini','gomba','bogyós','bogyos','avokád','avokad','kukorica','zöldség','zoldseg','borsó','borso','padlizsán','padlizsan']},
+  {id:'tej',name:'Tejtermék & tojás',icon:'🧀',keys:['tej','sajt','túró','turo','tejföl','tejfol','joghurt','vaj','tojás','tojas','tejszín','tejszin','mozzarella','kefir','margarin']},
+  {id:'pek',name:'Pékáru',icon:'🍞',keys:['kenyér','kenyer','zsemle','kifli','bagett','tortilla','pita','buci','péksüt','peksut']},
+  {id:'szaraz',name:'Száraz áru & tészta',icon:'🍝',keys:['rizs','tészta','teszta','spagetti','zab','liszt','cukor','bab','lencse','quinoa','müzli','muzli','müsli','musli','konzerv','keksz','dió','dio','mag','kása','kasa']},
+  {id:'fuszer',name:'Fűszer & alap',icon:'🧂',keys:['só','bors','olaj','ecet','méz','mez','fűszer','fuszer','mustár','mustar','ketchup','szósz','szosz','olíva','oliva','szója','szoja']},
+];
+function catFor(name){const l=name.toLowerCase();for(const c of STORE_CATS){if(c.keys.some(k=>l.includes(k)))return c.id;}return 'egyeb';}
+function catInfo(id){const c=STORE_CATS.find(x=>x.id===id);return c?{name:c.name,icon:c.icon}:{name:'Egyéb',icon:'🛒'};}
+function parseIng(line){line=(line||'').trim();if(!line)return null;
+  const m=line.match(/^(\d+(?:[.,]\d+)?)\s*([^\s\d]+)?\s*(.*)$/);
+  if(!m)return {qty:null,unit:'',name:line};
+  const qty=parseFloat(m[1].replace(',','.'));let token=m[2]||'',rest=(m[3]||'').trim();
+  const UNITS=['g','dkg','kg','mg','ml','dl','cl','l','ek','tk','db','szelet','doboz','konzerv','csomag','cs','marék','marek','gerezd','fej','csipet','adag','pohár','pohar','bögre','bogre','csésze','csesze'];
+  if(UNITS.includes(token.toLowerCase()))return {qty,unit:token.toLowerCase(),name:rest||token};
+  const name=(token+' '+rest).trim();return {qty,unit:'',name:name||line};}
+function fmtQty(qty,unit){qty=Math.round(qty*100)/100;
+  if(unit==='g'&&qty>=1000)return r1(qty/1000)+' kg';
+  if(unit==='ml'&&qty>=1000)return r1(qty/1000)+' l';
+  if(!unit)return r1(qty)+' db';return r1(qty)+' '+unit;}
+function weekLabel(){const w=weekOf(curDate),a=w[0],b=w[6];return `${MON[a.getMonth()]} ${a.getDate()} – ${a.getMonth()!==b.getMonth()?MON[b.getMonth()]+' ':''}${b.getDate()}.`;}
+const weekMon=()=>iso(monday(curDate));
+function weekShopping(){
+  const days=weekOf(curDate),perFood={};
+  days.forEach(d=>{const dISO=iso(d);MEAL_ORDER.forEach(t=>getMeals(dISO,t).forEach(e=>{perFood[e.foodId]=(perFood[e.foodId]||0)+(e.portions||1);}));});
+  const agg={},noqty={};
+  Object.entries(perFood).forEach(([fid,totPor])=>{const fd=foodOf(fid);if(!fd)return;
+    const cooks=Math.max(1,Math.ceil(totPor/(fd.portionsPerCook||1)));
+    (fd.ingredients||'').split('\n').forEach(line=>{const p=parseIng(line);if(!p)return;
+      if(p.qty==null){const k=p.name.toLowerCase();if(k)noqty[k]=p.name;return;}
+      const key=p.name.toLowerCase()+'|'+p.unit;if(!agg[key])agg[key]={name:p.name,unit:p.unit,qty:0};agg[key].qty+=p.qty*cooks;});});
+  return {agg:Object.values(agg),noqty:Object.values(noqty)};}
+function itemKey(it){return it.name.toLowerCase()+'|'+(it.unit||'');}
+function openShop(){renderShop();document.getElementById('shopOv').classList.add('show');}
+function renderShop(){
+  const wk=weekMon(),{agg,noqty}=weekShopping();
+  let items=agg.map(a=>({name:a.name,unit:a.unit,qty:a.qty}));
+  noqty.forEach(n=>items.push({name:n,unit:null,qty:null}));
+  const groups={},pantryItems=[];
+  items.forEach(it=>{if(pantry.includes(it.name.toLowerCase())){pantryItems.push(it);return;}const c=catFor(it.name);(groups[c]=groups[c]||[]).push(it);});
+  const bought=shopState[wk]||{};let total=0,h='';
+  STORE_CATS.map(c=>c.id).concat(['egyeb']).forEach(cid=>{const arr=groups[cid];if(!arr||!arr.length)return;
+    arr.sort((a,b)=>a.name.localeCompare(b.name,'hu'));const info=catInfo(cid);
+    h+=`<div class="shopcat"><div class="shopcat-h"><span class="ce">${info.icon}</span>${info.name}</div>`;
+    arr.forEach(it=>{total++;h+=shopItemHTML(it,bought,false);});h+=`</div>`;});
+  if(!total&&!pantryItems.length)h=`<div class="shop-empty">Nincs betervezett étel ezen a héten.<br>Előbb oszd be a rácsban az ételeket.</div>`;
+  if(pantryItems.length){pantryItems.sort((a,b)=>a.name.localeCompare(b.name,'hu'));
+    h+=`<div class="pantry-sec"><div class="shopcat-h"><span class="ce">🏠</span>Van otthon (kihagyva)</div>`;
+    pantryItems.forEach(it=>h+=shopItemHTML(it,bought,true));h+=`</div>`;}
+  document.getElementById('shopSub').textContent=weekLabel()+(total?` · ${total} tétel`:'');
+  document.getElementById('shopBody').innerHTML=h;bindShop();}
+function shopItemHTML(it,bought,isPantry){const key=itemKey(it),got=!!bought[key];
+  return `<div class="shop-item ${got?'got':''}">
+    <div class="cbox" data-buy="${esc(key)}">${TICK}</div>
+    <div class="si-main" data-buy="${esc(key)}"><span class="si-name">${esc(it.name)}</span>${it.qty!=null?`<span class="si-qty">${fmtQty(it.qty,it.unit)}</span>`:''}</div>
+    <button class="si-pantry" data-pantry="${esc(it.name.toLowerCase())}" title="${isPantry?'Vissza a listára':'Van otthon'}">${isPantry?'↩':'🏠'}</button></div>`;}
+function bindShop(){const wk=weekMon();
+  document.querySelectorAll('#shopBody [data-buy]').forEach(el=>el.addEventListener('click',()=>{const key=el.dataset.buy;
+    if(!shopState[wk])shopState[wk]={};if(shopState[wk][key])delete shopState[wk][key];else shopState[wk][key]=1;
+    if(!Object.keys(shopState[wk]).length)delete shopState[wk];saveShop();renderShop();}));
+  document.querySelectorAll('#shopBody [data-pantry]').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();
+    const n=el.dataset.pantry;if(pantry.includes(n))pantry=pantry.filter(x=>x!==n);else pantry.push(n);savePantry();renderShop();}));}
+function shopShareText(){const {agg,noqty}=weekShopping();
+  let items=agg.map(a=>({name:a.name,unit:a.unit,qty:a.qty})).concat(noqty.map(n=>({name:n,unit:null,qty:null})));
+  items=items.filter(it=>!pantry.includes(it.name.toLowerCase()));
+  const groups={};items.forEach(it=>{const c=catFor(it.name);(groups[c]=groups[c]||[]).push(it);});
+  let lines=['🛒 Bevásárlólista — '+weekLabel(),''];
+  STORE_CATS.map(c=>c.id).concat(['egyeb']).forEach(cid=>{const arr=groups[cid];if(!arr)return;
+    lines.push(catInfo(cid).name+':');arr.sort((a,b)=>a.name.localeCompare(b.name,'hu')).forEach(it=>lines.push('- '+it.name+(it.qty!=null?' ('+fmtQty(it.qty,it.unit)+')':'')));lines.push('');});
+  return lines.join('\n').trim();}
+function openCook(){renderCook();document.getElementById('cookOv').classList.add('show');}
+function renderCook(){const days=weekOf(curDate),per={};
+  days.forEach((d,i)=>{const dISO=iso(d);MEAL_ORDER.forEach(t=>getMeals(dISO,t).forEach(e=>{if(!per[e.foodId])per[e.foodId]={por:0,days:[]};per[e.foodId].por+=(e.portions||1);per[e.foodId].days.push(i);}));});
+  const ids=Object.keys(per);let h='';
+  if(!ids.length)h=`<div class="shop-empty">Nincs betervezett étel ezen a héten.</div>`;
+  ids.sort((a,b)=>per[b].por-per[a].por).forEach(fid=>{const fd=foodOf(fid);if(!fd)return;const p=per[fid],cooks=Math.max(1,Math.ceil(p.por/(fd.portionsPerCook||1)));
+    const dn=[...new Set(p.days)].sort((a,b)=>a-b).map(i=>DAY_SH[i]).join(', ');
+    h+=`<div class="cook-item"><div class="ci-n">${cooks}<small>főzés</small></div><div class="ci-b"><div class="ci-food">${esc(fd.name)}</div>
+      <div class="ci-meta">${r1(p.por)} adag kell · 1 főzés = ${fd.portionsPerCook||1} adag · ${dn}</div></div></div>`;});
+  document.getElementById('cookSub').textContent=weekLabel();document.getElementById('cookBody').innerHTML=h;}
+function copyLastWeek(){const cur=weekOf(curDate),prev=weekOf(addD(curDate,-7));
+  const has=cur.some(d=>{const p=plan[iso(d)];return p&&Object.keys(p).length;});
+  if(has&&!confirm('Az aktuális hét terve felülíródik a múlt hetivel. Folytatod?'))return;
+  let any=false;cur.forEach((d,i)=>{const src=iso(prev[i]),dst=iso(d);if(plan[dst])delete plan[dst];
+    MEAL_ORDER.forEach(t=>{const s=getMeals(src,t);if(s.length){any=true;planEnsure(dst,t);plan[dst][t]=s.map(e=>({foodId:e.foodId,portions:e.portions,eaten:false}));}});});
+  savePlan();if(!any)alert('A múlt héten nincs betervezett étkezés.');render();}
+function clearWeek(){const cur=weekOf(curDate),has=cur.some(d=>{const p=plan[iso(d)];return p&&Object.keys(p).length;});
+  if(!has){alert('Ez a hét már üres.');return;}if(!confirm('Töröljük a hét összes betervezett étkezését?'))return;
+  cur.forEach(d=>{if(plan[iso(d)])delete plan[iso(d)];});savePlan();render();}
+function openTpl(){document.getElementById('tpl-name').value='';renderTplList();document.getElementById('tplOv').classList.add('show');}
+function renderTplList(){const el=document.getElementById('tplList');
+  if(!templates.length){el.innerHTML='<div class="hint">Még nincs mentett sablon.</div>';return;}
+  el.innerHTML=templates.map(t=>`<div class="tpl-item"><span class="tn">${esc(t.name)}</span><button class="ap" data-ap="${t.id}">Alkalmaz</button><button class="dl" data-dl="${t.id}">✕</button></div>`).join('');
+  el.querySelectorAll('[data-ap]').forEach(b=>b.addEventListener('click',()=>applyTpl(b.dataset.ap)));
+  el.querySelectorAll('[data-dl]').forEach(b=>b.addEventListener('click',()=>{templates=templates.filter(t=>t.id!==b.dataset.dl);saveTemplates();renderTplList();}));}
+function saveTpl(){const name=document.getElementById('tpl-name').value.trim();if(!name){document.getElementById('tpl-name').focus();return;}
+  const cur=weekOf(curDate),meals={};let any=false;
+  cur.forEach((d,i)=>{const dISO=iso(d);MEAL_ORDER.forEach(t=>{const s=getMeals(dISO,t);if(s.length){any=true;(meals[i]=meals[i]||{})[t]=s.map(e=>({foodId:e.foodId,portions:e.portions}));}});});
+  if(!any){alert('Az aktuális hét üres — nincs mit sablonként menteni.');return;}
+  templates.push({id:'t'+Date.now().toString(36),name,meals});saveTemplates();document.getElementById('tpl-name').value='';renderTplList();}
+function applyTpl(id){const t=templates.find(x=>x.id===id);if(!t)return;const cur=weekOf(curDate);
+  const has=cur.some(d=>{const p=plan[iso(d)];return p&&Object.keys(p).length;});
+  if(has&&!confirm('Az aktuális hét terve felülíródik a sablonnal. Folytatod?'))return;
+  cur.forEach((d,i)=>{const dISO=iso(d);if(plan[dISO])delete plan[dISO];const md=t.meals[i];
+    if(md)MEAL_ORDER.forEach(tt=>{if(md[tt]){planEnsure(dISO,tt);plan[dISO][tt]=md[tt].map(e=>({foodId:e.foodId,portions:e.portions,eaten:false}));}});});
+  savePlan();document.getElementById('tplOv').classList.remove('show');render();}
+// static bindings for meal-tool modals
+document.getElementById('shop-share').addEventListener('click',async()=>{const text=shopShareText();
+  try{if(navigator.share){await navigator.share({text});}else{await navigator.clipboard.writeText(text);alert('Vágólapra másolva ✓');}}
+  catch(e){try{await navigator.clipboard.writeText(text);alert('Vágólapra másolva ✓');}catch(_){alert('Nem sikerült megosztani.');}}});
+document.getElementById('shop-close').addEventListener('click',()=>document.getElementById('shopOv').classList.remove('show'));
+document.getElementById('cook-close').addEventListener('click',()=>document.getElementById('cookOv').classList.remove('show'));
+document.getElementById('tpl-close').addEventListener('click',()=>document.getElementById('tplOv').classList.remove('show'));
+document.getElementById('tpl-save').addEventListener('click',saveTpl);
+['shopOv','cookOv','tplOv'].forEach(idv=>{const o=document.getElementById(idv);o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show');});});
+
 function slug(s){return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')+"-"+Date.now().toString(36).slice(-4);}
 
 /* ---------- nav / theme ---------- */
@@ -908,7 +1097,7 @@ const themeBtn=document.getElementById('themeBtn');
 function applyTheme(t){document.documentElement.setAttribute('data-theme',t);themeBtn.textContent=t==="dark"?"🌙":"☀️";localStorage.setItem(K_THEME,t);}
 applyTheme(ld(K_THEME,"dark"));
 themeBtn.addEventListener('click',()=>applyTheme(document.documentElement.getAttribute('data-theme')==="dark"?"light":"dark"));
-document.addEventListener('keydown',e=>{if(e.key==="Escape"){closeItem();closeCat();closeFood();mngOv.classList.remove('show');setOv.classList.remove('show');pickOv.classList.remove('show');}});
+document.addEventListener('keydown',e=>{if(e.key==="Escape"){closeItem();closeCat();closeFood();mngOv.classList.remove('show');setOv.classList.remove('show');pickOv.classList.remove('show');['shopOv','cookOv','tplOv'].forEach(v=>document.getElementById(v).classList.remove('show'));}});
 window.addEventListener('resize',moveGlider);
 render();
 </script>
