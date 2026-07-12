@@ -448,6 +448,18 @@ td.pl-total .u{font-size:9px;color:var(--muted);font-weight:500;display:block;}
     </div>
     <div class="hint">Minden adatod (agenda, étrend, beállítások) egy fájlba. Vidd át másik eszközre, vagy őrizd meg mentésként. Az importálás felülírja az eszköz jelenlegi adatait.</div>
   </div>
+  <div class="fld" style="border-top:1px solid var(--border);padding-top:15px;">
+    <label>Felhő-szinkron (Supabase)</label>
+    <input type="text" id="sy-url" placeholder="Project URL — https://xxxx.supabase.co" autocomplete="off">
+    <input type="text" id="sy-key" placeholder="anon (public) key" autocomplete="off" style="margin-top:8px">
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <input type="text" id="sy-code" placeholder="Szinkron-kód (titkos)" autocomplete="off" style="flex:1">
+      <button class="btn" id="sy-gen" title="Kód generálása" style="flex:0 0 auto">🎲</button>
+    </div>
+    <label class="everyday" style="margin-top:10px"><input type="checkbox" id="sy-on"> Szinkron bekapcsolva</label>
+    <button class="btn" id="sy-now" style="width:100%;margin-top:8px">🔄 Szinkronizálás most</button>
+    <div class="hint" id="sy-status">Nincs beállítva. Ugyanazt a kódot add meg minden eszközön.</div>
+  </div>
   <div class="m-actions"><div class="spacer"></div><button class="btn" id="s-cancel">Mégse</button><button class="btn prim" id="s-save">Mentés</button></div>
 </div></div>
 
@@ -916,8 +928,11 @@ function openMng(){renderMng();mngOv.classList.add('show');}
 
 /* ---------- settings ---------- */
 const setOv=document.getElementById('setOv');
-document.getElementById('setBtn').addEventListener('click',()=>{document.getElementById('s-kcal').value=targets.kcal;document.getElementById('s-p').value=targets.p;document.getElementById('s-c').value=targets.c;document.getElementById('s-f').value=targets.f;setOv.classList.add('show');});
-document.getElementById('s-save').addEventListener('click',()=>{targets={kcal:ri(document.getElementById('s-kcal').value),p:ri(document.getElementById('s-p').value),c:ri(document.getElementById('s-c').value),f:ri(document.getElementById('s-f').value)};saveTargets();setOv.classList.remove('show');render();});
+document.getElementById('setBtn').addEventListener('click',()=>{document.getElementById('s-kcal').value=targets.kcal;document.getElementById('s-p').value=targets.p;document.getElementById('s-c').value=targets.c;document.getElementById('s-f').value=targets.f;
+  document.getElementById('sy-url').value=sync.url||'';document.getElementById('sy-key').value=sync.key||'';document.getElementById('sy-code').value=sync.code||'';document.getElementById('sy-on').checked=!!sync.on;syncStatus();setOv.classList.add('show');});
+document.getElementById('s-save').addEventListener('click',()=>{targets={kcal:ri(document.getElementById('s-kcal').value),p:ri(document.getElementById('s-p').value),c:ri(document.getElementById('s-c').value),f:ri(document.getElementById('s-f').value)};saveTargets();
+  sync.url=document.getElementById('sy-url').value.trim();sync.key=document.getElementById('sy-key').value.trim();sync.code=document.getElementById('sy-code').value.trim();sync.on=document.getElementById('sy-on').checked;saveSync();
+  setOv.classList.remove('show');render();if(sync.on)syncInit();});
 document.getElementById('s-cancel').addEventListener('click',()=>setOv.classList.remove('show'));
 const BACKUP_KEYS=['pl-cats-v1','pl-items-v3','napi-pipeline-checks-v1','pl-theme','pl-targets','pl-foods','pl-mealplan','pl-templates','pl-pantry','pl-shop'];
 function exportData(){
@@ -940,6 +955,47 @@ function importData(file){
 }
 document.getElementById('s-export').addEventListener('click',exportData);
 document.getElementById('s-import').addEventListener('click',()=>document.getElementById('s-importfile').click());
+
+/* ---------- cloud sync (Supabase, sync-code) ---------- */
+const K_SYNC='pl-sync';
+let sync=ld(K_SYNC,{url:'',key:'',code:'',on:false});
+const saveSync=()=>localStorage.setItem(K_SYNC,JSON.stringify(sync));
+const localStamp=()=>parseInt(localStorage.getItem('pl-updated')||'0',10);
+const setStamp=t=>localStorage.setItem('pl-updated',String(t));
+const serializeState=()=>BACKUP_KEYS.map(k=>localStorage.getItem(k)||'').join('');
+let lastSerialized=serializeState(),syncBusy=false;
+function collectBlob(){const b={_stamp:localStamp()};BACKUP_KEYS.forEach(k=>{const v=localStorage.getItem(k);if(v!=null)b[k]=v;});return b;}
+function syncReady(){return sync.on&&sync.url&&sync.key&&sync.code;}
+function syncStatus(msg){const el=document.getElementById('sy-status');if(!el)return;
+  if(msg){el.textContent=msg;return;}
+  el.textContent=syncReady()?'Bekapcsolva. Ugyanezt a kódot add meg a többi eszközön.':'Nincs beállítva. Ugyanazt a kódot add meg minden eszközön.';}
+async function rpc(fn,body){
+  const res=await fetch(sync.url.replace(/\/+$/,'')+'/rest/v1/rpc/'+fn,{method:'POST',
+    headers:{'apikey':sync.key,'Authorization':'Bearer '+sync.key,'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!res.ok)throw new Error('HTTP '+res.status);
+  const t=await res.text();return t?JSON.parse(t):null;}
+async function syncPull(adopt){
+  const r=await rpc('levail_pull',{p_code:sync.code});
+  if(!r||!r.data)return 'empty';
+  const remote=r.data,rs=remote._stamp||0;
+  if(adopt&&rs>localStamp()){BACKUP_KEYS.forEach(k=>{if(typeof remote[k]==='string')localStorage.setItem(k,remote[k]);else localStorage.removeItem(k);});setStamp(rs);return 'adopted';}
+  return 'ok';}
+async function syncPush(){setStamp(Date.now());await rpc('levail_push',{p_code:sync.code,p_data:collectBlob()});lastSerialized=serializeState();}
+async function syncInit(){if(!syncReady())return;syncStatus('Szinkronizálás…');
+  try{const r=await syncPull(true);if(r==='adopted'){location.reload();return;}
+    if(r==='empty')await syncPush(); else lastSerialized=serializeState();
+    syncStatus('Szinkronizálva · '+new Date().toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit'}));}
+  catch(e){syncStatus('Hiba: '+e.message+' (ellenőrizd az URL-t/kulcsot/SQL-t)');}}
+async function syncMaybePush(){if(!syncReady()||syncBusy)return;const cur=serializeState();if(cur===lastSerialized)return;
+  syncBusy=true;try{await syncPush();syncStatus('Szinkronizálva · '+new Date().toLocaleTimeString('hu-HU',{hour:'2-digit',minute:'2-digit'}));}
+  catch(e){syncStatus('Feltöltés hiba: '+e.message);}finally{syncBusy=false;}}
+setInterval(syncMaybePush,12000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')syncMaybePush();});
+document.getElementById('sy-gen').addEventListener('click',()=>{const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';let s='';for(let i=0;i<20;i++)s+=a[Math.floor(Math.random()*a.length)];document.getElementById('sy-code').value=s;});
+document.getElementById('sy-now').addEventListener('click',async()=>{
+  sync.url=document.getElementById('sy-url').value.trim();sync.key=document.getElementById('sy-key').value.trim();sync.code=document.getElementById('sy-code').value.trim();sync.on=document.getElementById('sy-on').checked;saveSync();
+  if(!syncReady()){syncStatus('Töltsd ki az URL-t, a kulcsot és a kódot, és kapcsold be.');return;}
+  syncStatus('Szinkronizálás…');try{const r=await syncPull(true);if(r==='adopted'){location.reload();return;}await syncPush();syncStatus('Kész · szinkronizálva ✓');}catch(e){syncStatus('Hiba: '+e.message);}});
 document.getElementById('s-importfile').addEventListener('change',e=>{if(e.target.files&&e.target.files[0])importData(e.target.files[0]);e.target.value='';});
 setOv.addEventListener('click',e=>{if(e.target===setOv)setOv.classList.remove('show');});
 
@@ -1132,6 +1188,7 @@ themeBtn.addEventListener('click',()=>applyTheme(document.documentElement.getAtt
 document.addEventListener('keydown',e=>{if(e.key==="Escape"){closeItem();closeCat();closeFood();mngOv.classList.remove('show');setOv.classList.remove('show');pickOv.classList.remove('show');['shopOv','cookOv','tplOv'].forEach(v=>document.getElementById(v).classList.remove('show'));}});
 window.addEventListener('resize',moveGlider);
 render();
+syncInit();
 </script>
 </body>
 </html>
