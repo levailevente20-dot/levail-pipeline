@@ -432,13 +432,22 @@ td.pl-total .u{font-size:9px;color:var(--muted);font-weight:500;display:block;}
 
 <!-- SETTINGS (targets) -->
 <div class="overlay" id="setOv"><div class="modal">
-  <h3>Napi cél</h3><div class="msub2">A napi kalória- és makró-célod (fix érték).</div>
+  <h3>Beállítások</h3><div class="msub2">Napi kalória- és makró-cél (fix érték).</div>
   <div class="fld"><label>Kalória (kcal)</label><input type="number" id="s-kcal" min="0" step="10"></div>
   <div class="row2">
     <div class="fld"><label>Fehérje (g)</label><input type="number" id="s-p" min="0" step="1"></div>
     <div class="fld"><label>Szénhidrát (g)</label><input type="number" id="s-c" min="0" step="1"></div>
   </div>
   <div class="fld"><label>Zsír (g)</label><input type="number" id="s-f" min="0" step="1"></div>
+  <div class="fld" style="border-top:1px solid var(--border);padding-top:15px;margin-top:4px;">
+    <label>Biztonsági mentés</label>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn" id="s-export" style="flex:1;">⬇ Exportálás</button>
+      <button class="btn" id="s-import" style="flex:1;">⬆ Importálás</button>
+      <input type="file" id="s-importfile" accept="application/json,.json" style="display:none">
+    </div>
+    <div class="hint">Minden adatod (agenda, étrend, beállítások) egy fájlba. Vidd át másik eszközre, vagy őrizd meg mentésként. Az importálás felülírja az eszköz jelenlegi adatait.</div>
+  </div>
   <div class="m-actions"><div class="spacer"></div><button class="btn" id="s-cancel">Mégse</button><button class="btn prim" id="s-save">Mentés</button></div>
 </div></div>
 
@@ -910,6 +919,28 @@ const setOv=document.getElementById('setOv');
 document.getElementById('setBtn').addEventListener('click',()=>{document.getElementById('s-kcal').value=targets.kcal;document.getElementById('s-p').value=targets.p;document.getElementById('s-c').value=targets.c;document.getElementById('s-f').value=targets.f;setOv.classList.add('show');});
 document.getElementById('s-save').addEventListener('click',()=>{targets={kcal:ri(document.getElementById('s-kcal').value),p:ri(document.getElementById('s-p').value),c:ri(document.getElementById('s-c').value),f:ri(document.getElementById('s-f').value)};saveTargets();setOv.classList.remove('show');render();});
 document.getElementById('s-cancel').addEventListener('click',()=>setOv.classList.remove('show'));
+const BACKUP_KEYS=['pl-cats-v1','pl-items-v3','napi-pipeline-checks-v1','pl-theme','pl-targets','pl-foods','pl-mealplan','pl-templates','pl-pantry','pl-shop'];
+function exportData(){
+  const data={_app:'LevaiL OS',_version:1,_exported:new Date().toISOString()};
+  BACKUP_KEYS.forEach(k=>{const v=localStorage.getItem(k);if(v!=null)data[k]=v;});
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='levail-os-mentes-'+iso(new Date())+'.json';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+function importData(file){
+  const r=new FileReader();
+  r.onload=()=>{let d;try{d=JSON.parse(r.result);}catch(e){alert('Hibás mentésfájl (nem olvasható JSON).');return;}
+    if(!d||typeof d!=='object'){alert('Hibás mentésfájl.');return;}
+    if(d._app!=='LevaiL OS'&&!confirm('Ez nem LevaiL OS mentésnek tűnik. Mégis visszaállítod?'))return;
+    if(!confirm('A visszaállítás FELÜLÍRJA az eszköz jelenlegi adatait. Folytatod?'))return;
+    BACKUP_KEYS.forEach(k=>{if(typeof d[k]==='string')localStorage.setItem(k,d[k]);});
+    location.reload();};
+  r.readAsText(file);
+}
+document.getElementById('s-export').addEventListener('click',exportData);
+document.getElementById('s-import').addEventListener('click',()=>document.getElementById('s-importfile').click());
+document.getElementById('s-importfile').addEventListener('change',e=>{if(e.target.files&&e.target.files[0])importData(e.target.files[0]);e.target.value='';});
 setOv.addEventListener('click',e=>{if(e.target===setOv)setOv.classList.remove('show');});
 
 /* ---------- food modal ---------- */
