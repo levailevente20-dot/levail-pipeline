@@ -555,12 +555,22 @@ const DEFAULT_ITEMS=[
   {id:"journaling",cat:"szokasok",label:"Journaling / napi zárás",part:"este",days:"daily",metric:"check"},
 ];
 const DEFAULT_FOODS=[
-  {id:"rantotta",name:"Rántotta baconnel",meals:["reggeli"],portionsPerCook:1,perPortion:{kcal:420,p:28,c:3,f:33},ingredients:"3 tojás\n2 szelet bacon\n1 ek olaj",recipe:"A bacont kevés olajon megpirítod, ráütöd a tojásokat, és kevergetve összeforgatod."},
-  {id:"zabkasa",name:"Zabkása banánnal",meals:["reggeli"],portionsPerCook:1,perPortion:{kcal:420,p:16,c:65,f:10},ingredients:"60g zabpehely\n250ml tej\n1 banán\n1 tk méz",recipe:"A zabot a tejjel felforralod, tetejére szeletelt banán és méz."},
-  {id:"gorogjoghurt",name:"Görög joghurt gyümölccsel",meals:["reggeli"],portionsPerCook:1,perPortion:{kcal:250,p:18,c:30,f:6},ingredients:"200g görög joghurt\n1 marék bogyós gyümölcs\n1 tk méz",recipe:"Összekevered."},
-  {id:"csirkerizs",name:"Csirkemell rizzsel, brokkolival",meals:["ebed","vacsora"],portionsPerCook:3,perPortion:{kcal:550,p:45,c:55,f:14},ingredients:"600g csirkemell\n240g rizs (nyersen)\n400g brokkoli\nfűszerek, 2 ek olaj",recipe:"Rizst kifőzöd, a fűszerezett csirkét serpenyőben megsütöd, a brokkolit gőzölöd. Kb. 3 adag."},
-  {id:"bolognai",name:"Bolognai spagetti",meals:["ebed","vacsora"],portionsPerCook:4,perPortion:{kcal:600,p:32,c:70,f:20},ingredients:"500g darált marha\n320g spagetti\n1 doboz aprított paradicsom\nhagyma, fokhagyma",recipe:"Hagymán megpirítod a húst, paradicsommal felöntöd, párolod. Tésztát kifőzöd. Kb. 4 adag."},
-  {id:"turosteszta",name:"Túrós tészta",meals:["ebed","vacsora"],portionsPerCook:3,perPortion:{kcal:520,p:24,c:65,f:18},ingredients:"250g tészta\n500g túró\n200g tejföl\n100g bacon",recipe:"Tésztát kifőzöd, összeforgatod túróval, tejföllel, pirított baconnel. Kb. 3 adag."},
+  // --- Reggelik ---
+  {id:"feherjes-zabkasa",name:"Fehérjés zabkása",meals:["reggeli"],portionsPerCook:1,perPortion:{kcal:430,p:35,c:55,f:8},ingredients:"60g zabpehely\n250ml tej (2,8%)\n1 adag fehérjepor\n1 banán",recipe:"A zabot a tejjel megfőzöd, elkevered a fehérjeport, tetejére szeletelt banán."},
+  {id:"rantotta",name:"Rántotta zöldségekkel",meals:["reggeli"],portionsPerCook:1,perPortion:{kcal:320,p:24,c:8,f:21},ingredients:"3 tojás\n1 paprika\n1 paradicsom\n1 tk olaj",recipe:"A kockázott zöldséget kevés olajon megdinszteled, ráütöd a tojásokat, összeforgatod."},
+  {id:"gorogjoghurt",name:"Görög joghurt zabbal, gyümölccsel",meals:["reggeli"],portionsPerCook:1,perPortion:{kcal:380,p:26,c:45,f:9},ingredients:"250g görög joghurt\n40g zabpehely\n1 marék bogyós gyümölcs\n1 tk méz",recipe:"A joghurtot elkevered a zabbal, tetejére gyümölcs és méz."},
+  {id:"turopalacsinta",name:"Túrós-banános fitt palacsinta",meals:["reggeli"],portionsPerCook:1,perPortion:{kcal:470,p:40,c:45,f:14},ingredients:"250g túró\n2 tojás\n40g zabliszt\n1 banán",recipe:"Mindent összeturmixolsz, tapadásmentes serpenyőben kevés olajon kisütöd. 2-3 palacsinta."},
+  // --- Fő ételek (batch-főzhető) ---
+  {id:"rakott-karfiol",name:"Rakott karfiol fitt módra",meals:["ebed","vacsora"],portionsPerCook:4,perPortion:{kcal:370,p:36,c:20,f:17},ingredients:"1 kg karfiol\n500g darált pulykamell\n4 tojás\n300g görög joghurt\nhagyma, fűszerek, 1 ek olaj",recipe:"Karfiolt roppanósra főzöl. A darált pulykát hagymán, kevés olajon megpirítod, fűszerezed. Egy tálba rétegezed: karfiol, hús, karfiol. A tetejére tojással elkevert görög joghurtot öntesz. 180°C-on kb. 25 perc. Kb. 4 adag."},
+  {id:"csirkeporkolt",name:"Csirkepörkölt fitt módra",meals:["ebed","vacsora"],portionsPerCook:4,perPortion:{kcal:520,p:44,c:48,f:14},ingredients:"800g csirkemell\n2 fej vöröshagyma\n2 paprika\n1 paradicsom\n1 ek olaj\npirospaprika, fűszerek\n240g rizs (nyersen)",recipe:"A hagymát kevés olajon üvegesre dinszteled, elkevered a pirospaprikát, hozzáadod a kockázott csirkét és zöldséget, felöntöd kevés vízzel, puhára párolod. Rizzsel tálalod. Kb. 4 adag."},
+  {id:"csirkerizs",name:"Csirkemell rizzsel, párolt zöldséggel",meals:["ebed","vacsora"],portionsPerCook:3,perPortion:{kcal:520,p:45,c:55,f:11},ingredients:"600g csirkemell\n240g rizs (nyersen)\n400g brokkoli\nfűszerek, 1 ek olaj",recipe:"Rizst kifőzöd, a fűszerezett csirkét kevés olajon megsütöd, a brokkolit gőzölöd. Kb. 3 adag."},
+  {id:"sult-csirke-krumpli",name:"Sült csirkemell sült burgonyával",meals:["ebed","vacsora"],portionsPerCook:3,perPortion:{kcal:510,p:45,c:50,f:13},ingredients:"600g csirkemell\n800g burgonya\n2 ek olaj\nfűszerek (rozmaring, fokhagyma)",recipe:"A csirkét és a cikkekre vágott burgonyát fűszerezed, 2 ek olajjal meglocsolod, tepsire teríted. 200°C-on 30-35 perc. Kb. 3 adag."},
+  {id:"sult-pulyka-edesburgonya",name:"Sült pulyka édesburgonyával",meals:["ebed","vacsora"],portionsPerCook:3,perPortion:{kcal:500,p:42,c:46,f:14},ingredients:"600g pulykamell\n700g édesburgonya\n300g zöldség (cukkini, paprika)\n2 ek olaj\nfűszerek",recipe:"A pulykát és a felkockázott édesburgonyát, zöldséget fűszerezed, olajjal meglocsolod, 200°C-on kb. 30 perc. Kb. 3 adag."},
+  {id:"sult-lazac",name:"Sült lazac burgonyával, zöldséggel",meals:["ebed","vacsora"],portionsPerCook:2,perPortion:{kcal:520,p:38,c:35,f:24},ingredients:"2 lazacfilé (kb. 300g)\n500g burgonya\n300g brokkoli\n1 ek olaj\ncitrom, fűszerek",recipe:"A burgonyát félig megfőzöd, tepsire teszed a lazaccal és a brokkolival, meglocsolod olajjal, citrommal. 200°C-on 20 perc. Kb. 2 adag."},
+  {id:"tonhalas-teszta",name:"Tonhalas-zöldséges tészta",meals:["ebed","vacsora"],portionsPerCook:3,perPortion:{kcal:520,p:38,c:62,f:12},ingredients:"250g teljes kiőrlésű tészta\n2 konzerv tonhal\n1 doboz aprított paradicsom\nhagyma, fokhagyma, fűszerek",recipe:"Hagymán, fokhagymán megfuttatod a tonhalat, felöntöd a paradicsommal, összeforralod. A kifőtt tésztával elkevered. Kb. 3 adag."},
+  {id:"toltott-paprika",name:"Töltött paprika fitt módra",meals:["ebed","vacsora"],portionsPerCook:4,perPortion:{kcal:420,p:32,c:40,f:14},ingredients:"600g darált pulyka\n150g barna rizs (nyersen)\n6 paprika\n1 doboz aprított paradicsom\nhagyma, fűszerek",recipe:"A darált húst összekevered a félig főtt rizzsel, hagymával, fűszerrel, megtöltöd a paprikákat. Paradicsomos lében puhára főzöd. Kb. 4 adag."},
+  {id:"csirke-wok",name:"Csirkés-zöldséges wok rizzsel",meals:["ebed","vacsora"],portionsPerCook:3,perPortion:{kcal:480,p:40,c:52,f:10},ingredients:"600g csirkemell\n500g wok zöldség\n240g rizs (nyersen)\nszójaszósz, 1 ek olaj",recipe:"A csíkozott csirkét forró wokban kevés olajon megkapod, hozzáadod a zöldséget, szójaszósszal ízesíted. Rizzsel tálalod. Kb. 3 adag."},
+  {id:"bolognai",name:"Bolognai sovány marhából",meals:["ebed","vacsora"],portionsPerCook:4,perPortion:{kcal:540,p:34,c:65,f:15},ingredients:"500g sovány darált marha\n320g teljes kiőrlésű spagetti\n1 doboz aprított paradicsom\nhagyma, fokhagyma, fűszerek",recipe:"Hagymán megpirítod a húst, paradicsommal felöntöd, párolod. A kifőtt tésztával tálalod. Kb. 4 adag."},
 ];
 const DEFAULT_TARGETS={kcal:2200,p:160,c:220,f:70};
 
@@ -842,7 +852,7 @@ function renderPlan(){
     h+=`<td class="pl-total ${cls}">${ri(kc)}<span class="u">/${ri(targets.kcal)}</span></td>`;});
   h+=`</tr></tbody></table></div></div>`;
 
-  h+=`<div class="section-h"><span class="t">Ételeim</span><button class="btn prim add" id="addFood">+ Új étel</button></div>`;
+  h+=`<div class="section-h"><span class="t">Ételeim</span><span class="add" style="display:flex;gap:8px"><button class="btn" id="seedFood">📖 Alapreceptek</button><button class="btn prim" id="addFood">+ Új étel</button></span></div>`;
   h+=`<div class="foodgrid">`;
   if(!foods.length)h+=`<div class="emptyp" style="text-align:center">Még nincs étel. Vegyél fel egyet a „+ Új étel" gombbal.</div>`;
   foods.forEach(fd=>{const m=fd.perPortion;
@@ -855,6 +865,7 @@ function renderPlan(){
   viewEl.querySelectorAll('[data-plan]').forEach(el=>el.addEventListener('click',()=>{const[dISO,type]=el.dataset.plan.split(':');openPick(dISO,type);}));
   viewEl.querySelectorAll('[data-food]').forEach(b=>b.addEventListener('click',()=>openFood(b.dataset.food)));
   document.getElementById('addFood').addEventListener('click',()=>openFood(null));
+  document.getElementById('seedFood').addEventListener('click',seedRecipes);
   document.getElementById('shopBtn').addEventListener('click',openShop);
   document.getElementById('cookBtn').addEventListener('click',openCook);
   document.getElementById('copyBtn').addEventListener('click',copyLastWeek);
@@ -1003,6 +1014,9 @@ setOv.addEventListener('click',e=>{if(e.target===setOv)setOv.classList.remove('s
 const foodOv=document.getElementById('foodOv');let editingFood=null,fdMeals=new Set();
 document.getElementById('fd-meals').innerHTML=MEAL_ORDER.map(t=>`<button type="button" data-fm="${t}">${MEAL_LABEL[t]}</button>`).join('');
 document.querySelectorAll('#fd-meals button').forEach(b=>b.addEventListener('click',()=>{const t=b.dataset.fm;if(fdMeals.has(t))fdMeals.delete(t);else fdMeals.add(t);b.classList.toggle('on',fdMeals.has(t));}));
+function seedRecipes(){let added=0;DEFAULT_FOODS.forEach(f=>{if(!foods.some(x=>x.id===f.id)){foods.push(JSON.parse(JSON.stringify(f)));added++;}});
+  if(added){saveFoods();render();}
+  alert(added?added+' új recept hozzáadva az ételeidhez.':'Minden alaprecept már benne van.');}
 function openFood(id){editingFood=id;const fd=id?foodOf(id):null;
   document.getElementById('foodTitle').textContent=id?"Étel szerkesztése":"Új étel";
   document.getElementById('fd-name').value=fd?fd.name:"";
