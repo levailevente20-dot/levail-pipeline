@@ -231,6 +231,16 @@ table.cal-t tbody td{border-top:1px solid var(--border);min-width:40px;}
 td.pl-total{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:12px;}
 td.pl-total .u{font-size:9px;color:var(--muted);font-weight:500;display:block;}
 .tot-ok{color:#34d399;}.tot-under{color:var(--muted);}.tot-over{color:#fbbf24;}
+.mkc.k-ok{color:#34d399;}.mkc.k-under{color:var(--muted);}.mkc.k-over{color:#fbbf24;}
+.ptar{display:block;font-size:9.5px;color:var(--faint);font-weight:600;margin-top:1px;}
+.slot-h{font-size:12px;color:var(--muted);font-weight:600;padding:7px 8px 3px;display:flex;align-items:center;gap:6px;}
+.slot-h .bt{font-family:'Space Grotesk',sans-serif;font-weight:700;}
+.slot-h .s-ok{color:#34d399;}.slot-h .s-under{color:var(--faint);}.slot-h .s-over{color:#fbbf24;}
+.ms-info{font-size:12px;color:var(--muted);text-align:center;padding-top:4px;border-top:1px dashed var(--border);margin-top:2px;}
+.ms-info b{color:var(--text);font-family:'Space Grotesk',sans-serif;}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.row3 .mlbl{display:block;font-size:11px;color:var(--muted);font-weight:600;margin-bottom:5px;}
+.row3 input{width:100%;}
 .section-h{display:flex;align-items:center;gap:9px;margin:22px 2px 12px;}
 .section-h .t{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;}
 .section-h .add{margin-left:auto;}
@@ -432,13 +442,19 @@ td.pl-total .u{font-size:9px;color:var(--muted);font-weight:500;display:block;}
 
 <!-- SETTINGS (targets) -->
 <div class="overlay" id="setOv"><div class="modal">
-  <h3>Beállítások</h3><div class="msub2">Napi kalória- és makró-cél (fix érték).</div>
-  <div class="fld"><label>Kalória (kcal)</label><input type="number" id="s-kcal" min="0" step="10"></div>
+  <h3>Beállítások</h3><div class="msub2">Napi kalória- és fehérje-cél, 3 étkezésre osztva.</div>
   <div class="row2">
+    <div class="fld"><label>Napi kalória (kcal)</label><input type="number" id="s-kcal" min="0" step="10"></div>
     <div class="fld"><label>Fehérje (g)</label><input type="number" id="s-p" min="0" step="1"></div>
-    <div class="fld"><label>Szénhidrát (g)</label><input type="number" id="s-c" min="0" step="1"></div>
   </div>
-  <div class="fld"><label>Zsír (g)</label><input type="number" id="s-f" min="0" step="1"></div>
+  <div class="fld"><label>Kalória-elosztás (3 étkezés)</label>
+    <div class="row3">
+      <div><span class="mlbl">Reggeli</span><input type="number" id="s-mr" min="0" step="10"></div>
+      <div><span class="mlbl">Ebéd</span><input type="number" id="s-me" min="0" step="10"></div>
+      <div><span class="mlbl">Vacsora</span><input type="number" id="s-mv" min="0" step="10"></div>
+    </div>
+    <div class="hint" id="s-mealsum"></div>
+  </div>
   <div class="fld" style="border-top:1px solid var(--border);padding-top:15px;margin-top:4px;">
     <label>Biztonsági mentés</label>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -572,7 +588,7 @@ const DEFAULT_FOODS=[
   {id:"csirke-wok",name:"Csirkés-zöldséges wok rizzsel",meals:["ebed","vacsora"],portionsPerCook:3,perPortion:{kcal:480,p:40,c:52,f:10},ingredients:"600g csirkemell\n500g wok zöldség\n240g rizs (nyersen)\nszójaszósz, 1 ek olaj",recipe:"A csíkozott csirkét forró wokban kevés olajon megkapod, hozzáadod a zöldséget, szójaszósszal ízesíted. Rizzsel tálalod. Kb. 3 adag."},
   {id:"bolognai",name:"Bolognai sovány marhából",meals:["ebed","vacsora"],portionsPerCook:4,perPortion:{kcal:540,p:34,c:65,f:15},ingredients:"500g sovány darált marha\n320g teljes kiőrlésű spagetti\n1 doboz aprított paradicsom\nhagyma, fokhagyma, fűszerek",recipe:"Hagymán megpirítod a húst, paradicsommal felöntöd, párolod. A kifőtt tésztával tálalod. Kb. 4 adag."},
 ];
-const DEFAULT_TARGETS={kcal:2200,p:160,c:220,f:70};
+const DEFAULT_TARGETS={kcal:2000,p:150,c:0,f:0,meals:{reggeli:500,ebed:750,vacsora:750}};
 
 const PALETTE=['#a855f7','#8b5cf6','#6366f1','#3b82f6','#0ea5e9','#06b6d4','#14b8a6','#10b981','#22c55e','#84cc16','#eab308','#f59e0b','#f97316','#ef4444','#ec4899','#f43f5e'];
 const ICONSET=['💼','📈','💪','🧭','📞','🎯','🔥','🧠','💰','⚡','🏋️','🥗','📚','🌅','🧘','🚀','⭐','🛠️','📊','💡','🩺','🍽️'];
@@ -636,6 +652,9 @@ function planEnsure(dISO,type){if(!plan[dISO])plan[dISO]={};if(!plan[dISO][type]
 function addMeal(dISO,type,foodId,portions){planEnsure(dISO,type).push({foodId,portions:portions||1,eaten:false});savePlan();}
 function removeMeal(dISO,type,idx){const a=getMeals(dISO,type);a.splice(idx,1);if(!a.length&&plan[dISO])delete plan[dISO][type];if(plan[dISO]&&!Object.keys(plan[dISO]).length)delete plan[dISO];savePlan();}
 function toggleEaten(dISO,type,idx){const a=getMeals(dISO,type);if(a[idx]){a[idx].eaten=!a[idx].eaten;savePlan();}}
+const mealTarget=t=>(targets.meals&&targets.meals[t]!=null)?targets.meals[t]:Math.round((targets.kcal||2000)/3);
+function slotKcal(dISO,type){let s=0;getMeals(dISO,type).forEach(e=>{const fd=foodOf(e.foodId);if(fd)s+=fd.perPortion.kcal*(e.portions||1);});return s;}
+function kcalClass(kc,tgt){if(!kc)return '';return (kc>=tgt*0.9&&kc<=tgt*1.15)?'ok':(kc<tgt*0.9?'under':'over');}
 function dayMacros(dISO){let plan_={kcal:0,p:0,c:0,f:0},eat={kcal:0,p:0,c:0,f:0};
   MEAL_ORDER.forEach(t=>getMeals(dISO,t).forEach(e=>{const fd=foodOf(e.foodId);if(!fd)return;const m=fd.perPortion,q=e.portions||1;
     ['kcal','p','c','f'].forEach(k=>{const v=(m[k]||0)*q;plan_[k]+=v;if(e.eaten)eat[k]+=v;});}));
@@ -710,7 +729,8 @@ function renderDay(){
       <div class="card">`;
     its.forEach(it=>h+=rowHTML(it,dISO));
     if(mealType){
-      h+=`<div class="mealslot">`;
+      const tgt=mealTarget(mealType),skc=slotKcal(dISO,mealType),sc=kcalClass(skc,tgt);
+      h+=`<div class="mealslot"><div class="slot-h">🎯 cél ~${tgt} kcal${meals.length?` · <span class="s-${sc}">betervezve <span class="bt">${ri(skc)}</span></span>`:''}</div>`;
       meals.forEach((e,idx)=>h+=mealHTML(dISO,mealType,e,idx));
       h+=`<button class="addmeal" data-addmeal="${mealType}">+ ${MEAL_LABEL[mealType]} hozzáadása</button></div>`;
     }
@@ -724,9 +744,10 @@ function renderDay(){
   h+=`<div class="macros"><div class="mh"><span>🍽️</span><span class="t">Napi kalória & makró</span>
     <span class="cal"><b><span class="num" data-key="kcaleat" data-to="${ri(mac.eat.kcal)}">0</span></b> / ${ri(targets.kcal)} kcal</span></div><div class="mbody">`;
   h+=macroRow("Kalória","kcal",mac.eat.kcal,mac.plan.kcal,targets.kcal,"#f59e0b","");
-  h+=macroRow("Fehérje","p",mac.eat.p,mac.plan.p,targets.p,"#ef4444","g");
-  h+=macroRow("Szénhidrát","c",mac.eat.c,mac.plan.c,targets.c,"#3b82f6","g");
-  h+=macroRow("Zsír","f",mac.eat.f,mac.plan.f,targets.f,"#eab308","g");
+  if(targets.p>0)h+=macroRow("Fehérje","p",mac.eat.p,mac.plan.p,targets.p,"#ef4444","g");
+  if(targets.c>0)h+=macroRow("Szénhidrát","c",mac.eat.c,mac.plan.c,targets.c,"#3b82f6","g");
+  if(targets.f>0)h+=macroRow("Zsír","f",mac.eat.f,mac.plan.f,targets.f,"#eab308","g");
+  h+=`<div class="ms-info">Szénhidrát <b>${ri(mac.eat.c)}</b> g · Zsír <b>${ri(mac.eat.f)}</b> g <span style="opacity:.6">(megevett · terv ${ri(mac.plan.c)}/${ri(mac.plan.f)} g)</span></div>`;
   h+=`</div></div>`;
 
   viewEl.innerHTML=h;bindDay();
@@ -826,6 +847,7 @@ function goalHTML(cat,label,pct,met,key,curVal,goalTxt,dec){
 function renderPlan(){
   const days=weekOf(curDate),todayISO=iso(new Date());
   let h=`<div class="plan-actions">
+    <button class="pa-btn" id="genBtn">✨ Generálás</button>
     <button class="pa-btn" id="shopBtn">🛒 Bevásárlólista</button>
     <button class="pa-btn" id="cookBtn">👨‍🍳 Főzési terv</button>
     <button class="pa-btn" id="copyBtn">⧉ Múlt hét</button>
@@ -835,13 +857,13 @@ function renderPlan(){
   h+=`<div class="cal"><div class="cal-scroll"><table class="cal-t"><thead><tr><th class="plabel"></th>`;
   days.forEach(d=>{const t=iso(d)===todayISO;h+=`<th class="${t?'tdy':''}">${DAY_SH[wd(d)]}<span class="dn">${d.getDate()}</span></th>`;});
   h+=`</tr></thead><tbody>`;
-  MEAL_ORDER.forEach(type=>{
-    h+=`<tr><td class="plabel"><span class="pe">${PARTS.find(p=>p.id===MEAL_PART[type]).icon}</span>${MEAL_LABEL[type]}</td>`;
+  MEAL_ORDER.forEach(type=>{const tgt=mealTarget(type);
+    h+=`<tr><td class="plabel"><span class="pe">${PARTS.find(p=>p.id===MEAL_PART[type]).icon}</span>${MEAL_LABEL[type]}<span class="ptar">cél ~${tgt} kcal</span></td>`;
     days.forEach(d=>{const dISO=iso(d),t=dISO===todayISO,ms=getMeals(dISO,type);
       h+=`<td><div class="plan-cell ${t?'tdycol':''}" data-plan="${dISO}:${type}">`;
       if(ms.length){ms.forEach(e=>{const fd=foodOf(e.foodId);h+=`<div class="mfood">${fd?esc(fd.name):'?'}${e.portions&&e.portions!==1?` ×${r1(e.portions)}`:''}</div>`;});
         const kc=ms.reduce((s,e)=>{const fd=foodOf(e.foodId);return s+(fd?fd.perPortion.kcal*(e.portions||1):0);},0);
-        h+=`<div class="mkc">${ri(kc)} kcal</div>`;}
+        h+=`<div class="mkc k-${kcalClass(kc,tgt)}">${ri(kc)} kcal</div>`;}
       else h+=`<div class="empty">+</div>`;
       h+=`</div></td>`;});
     h+=`</tr>`;});
@@ -871,6 +893,7 @@ function renderPlan(){
   document.getElementById('copyBtn').addEventListener('click',copyLastWeek);
   document.getElementById('tplBtn').addEventListener('click',openTpl);
   document.getElementById('clrBtn').addEventListener('click',clearWeek);
+  document.getElementById('genBtn').addEventListener('click',generateWeek);
 }
 
 /* ---------- item modal ---------- */
@@ -939,9 +962,13 @@ function openMng(){renderMng();mngOv.classList.add('show');}
 
 /* ---------- settings ---------- */
 const setOv=document.getElementById('setOv');
-document.getElementById('setBtn').addEventListener('click',()=>{document.getElementById('s-kcal').value=targets.kcal;document.getElementById('s-p').value=targets.p;document.getElementById('s-c').value=targets.c;document.getElementById('s-f').value=targets.f;
+function updateMealSum(){const s=ri(document.getElementById('s-mr').value)+ri(document.getElementById('s-me').value)+ri(document.getElementById('s-mv').value),tot=ri(document.getElementById('s-kcal').value);
+  const el=document.getElementById('s-mealsum');el.textContent=`összeg: ${s} / ${tot} kcal`+(s!==tot?' (eltér a napi céltól)':' ✓');el.style.color=s===tot?'#34d399':'var(--muted)';}
+['s-mr','s-me','s-mv','s-kcal'].forEach(id=>document.getElementById(id).addEventListener('input',updateMealSum));
+document.getElementById('setBtn').addEventListener('click',()=>{document.getElementById('s-kcal').value=targets.kcal;document.getElementById('s-p').value=targets.p;
+  const m=targets.meals||{reggeli:500,ebed:750,vacsora:750};document.getElementById('s-mr').value=m.reggeli;document.getElementById('s-me').value=m.ebed;document.getElementById('s-mv').value=m.vacsora;updateMealSum();
   document.getElementById('sy-url').value=sync.url||'';document.getElementById('sy-key').value=sync.key||'';document.getElementById('sy-code').value=sync.code||'';document.getElementById('sy-on').checked=!!sync.on;syncStatus();setOv.classList.add('show');});
-document.getElementById('s-save').addEventListener('click',()=>{targets={kcal:ri(document.getElementById('s-kcal').value),p:ri(document.getElementById('s-p').value),c:ri(document.getElementById('s-c').value),f:ri(document.getElementById('s-f').value)};saveTargets();
+document.getElementById('s-save').addEventListener('click',()=>{targets={kcal:ri(document.getElementById('s-kcal').value),p:ri(document.getElementById('s-p').value),c:0,f:0,meals:{reggeli:ri(document.getElementById('s-mr').value),ebed:ri(document.getElementById('s-me').value),vacsora:ri(document.getElementById('s-mv').value)}};saveTargets();
   sync.url=document.getElementById('sy-url').value.trim();sync.key=document.getElementById('sy-key').value.trim();sync.code=document.getElementById('sy-code').value.trim();sync.on=document.getElementById('sy-on').checked;saveSync();
   setOv.classList.remove('show');render();if(sync.on)syncInit();});
 document.getElementById('s-cancel').addEventListener('click',()=>setOv.classList.remove('show'));
@@ -1151,6 +1178,28 @@ function renderCook(){const days=weekOf(curDate),per={};
     h+=`<div class="cook-item"><div class="ci-n">${cooks}<small>főzés</small></div><div class="ci-b"><div class="ci-food">${esc(fd.name)}</div>
       <div class="ci-meta">${r1(p.por)} adag kell · 1 főzés = ${fd.portionsPerCook||1} adag · ${dn}</div></div></div>`;});
   document.getElementById('cookSub').textContent=weekLabel();document.getElementById('cookBody').innerHTML=h;}
+function generateWeek(){
+  if(!foods.length){alert('Előbb vegyél fel ételeket (📖 Alapreceptek).');return;}
+  const cur=weekOf(curDate);
+  const has=cur.some(d=>{const p=plan[iso(d)];return p&&Object.keys(p).length;});
+  if(has&&!confirm('A generálás felülírja az aktuális hét tervét. Folytatod?'))return;
+  cur.forEach(d=>{if(plan[iso(d)])delete plan[iso(d)];});
+  MEAL_ORDER.forEach(type=>{
+    let cand=foods.filter(f=>f.meals&&f.meals.includes(type));
+    if(!cand.length)return;
+    cand=cand.slice().sort(()=>Math.random()-0.5);
+    const tgt=mealTarget(type);let ci=0,day=0;
+    while(day<7){
+      const fd=cand[ci%cand.length];ci++;
+      const per=Math.max(1,fd.portionsPerCook||1),span=Math.min(per,7-day);
+      let portions=Math.round(tgt/(fd.perPortion.kcal||1)*4)/4;
+      portions=Math.max(0.5,Math.min(2.5,portions));
+      for(let k=0;k<span;k++){const dISO=iso(cur[day+k]);planEnsure(dISO,type);plan[dISO][type]=[{foodId:fd.id,portions,eaten:false}];}
+      day+=span;
+    }
+  });
+  savePlan();render();
+}
 function copyLastWeek(){const cur=weekOf(curDate),prev=weekOf(addD(curDate,-7));
   const has=cur.some(d=>{const p=plan[iso(d)];return p&&Object.keys(p).length;});
   if(has&&!confirm('Az aktuális hét terve felülíródik a múlt hetivel. Folytatod?'))return;
