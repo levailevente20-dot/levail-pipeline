@@ -421,6 +421,26 @@ td.pl-total .u{font-size:9px;color:var(--muted);font-weight:500;display:block;}
 /* keyboard focus */
 button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--grad-b);outline-offset:2px;}
 @media (min-width:900px){ .controls{margin-bottom:24px;} }
+/* ===== unified line-icon system ===== */
+.ico{width:1.1em;height:1.1em;display:inline-block;vertical-align:-.18em;flex:0 0 auto;}
+.iconbtn .ico{width:20px;height:20px;}
+.tlp .node{color:var(--muted);}
+.tlp .node .ico{width:23px;height:23px;}
+.tlp.now .node{color:#fff;}
+.allday .ah .ai{display:inline-flex;color:var(--muted);}
+.allday .ah .ai .ico{width:16px;height:16px;}
+.macros .mh .mi{display:inline-flex;color:var(--meal);}
+.macros .mh .mi .ico{width:18px;height:18px;}
+.slot-h .ti{display:inline-flex;color:var(--meal);}
+.slot-h .ti .ico{width:14px;height:14px;}
+.stat.streak .fl{color:#fbbf24;font-size:0;}
+.stat.streak .fl .ico{width:26px;height:26px;}
+td.plabel .pe{display:inline-flex;vertical-align:-.22em;color:var(--muted);}
+td.plabel .pe .ico{width:15px;height:15px;}
+.wkgoals .gh .gi{display:inline-flex;color:var(--muted);}
+.meal .mdot{width:9px;height:9px;border-radius:3px;background:var(--meal);flex:0 0 auto;box-shadow:0 0 8px -1px var(--meal);margin:0 3px 0 2px;}
+.meal-empty{font-size:12.5px;color:var(--faint);font-style:italic;padding:8px 8px 5px;}
+.meal-empty b{color:var(--muted);font-style:normal;}
 </style>
 </head>
 <body>
@@ -438,9 +458,9 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
       <div><div class="word">LevaiL<span class="gr"> OS</span></div><div class="sub">napi asszisztens</div></div>
     </div>
     <div class="top-actions">
-      <button class="iconbtn" id="setBtn" title="Beállítások">⚙</button>
-      <button class="iconbtn" id="themeBtn" title="Téma">🌙</button>
-      <button class="iconbtn" id="editBtn" title="Szerkesztés">✎</button>
+      <button class="iconbtn" id="setBtn" title="Beállítások" aria-label="Beállítások"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+      <button class="iconbtn" id="themeBtn" title="Téma" aria-label="Téma váltás"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+      <button class="iconbtn" id="editBtn" title="Szerkesztés" aria-label="Szerkesztés"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
     </div>
   </div>
 
@@ -615,12 +635,12 @@ let _toastT=null;
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(_toastT);_toastT=setTimeout(()=>t.classList.remove('show'),2400);}
 /* ---------- dayparts ---------- */
 const PARTS=[
-  {id:"allday",name:"Egész nap",icon:"📌",allday:true},
-  {id:"reggel",name:"Reggel",icon:"🌅",from:5,to:9},
-  {id:"delelott",name:"Délelőtt",icon:"☀️",from:9,to:12},
-  {id:"del",name:"Dél",icon:"🍽️",from:12,to:14},
-  {id:"delutan",name:"Délután",icon:"🌆",from:14,to:18},
-  {id:"este",name:"Este",icon:"🌙",from:18,to:24},
+  {id:"allday",name:"Egész nap",icon:"📌",ico:"pin",allday:true},
+  {id:"reggel",name:"Reggel",icon:"🌅",ico:"sunrise",from:5,to:9},
+  {id:"delelott",name:"Délelőtt",icon:"☀️",ico:"sun",from:9,to:12},
+  {id:"del",name:"Dél",icon:"🍽️",ico:"utensils",from:12,to:14},
+  {id:"delutan",name:"Délután",icon:"🌆",ico:"sunset",from:14,to:18},
+  {id:"este",name:"Este",icon:"🌙",ico:"moon",from:18,to:24},
 ];
 const PART_MEAL={reggel:"reggeli",del:"ebed",este:"vacsora"};
 const MEAL_PART={reggeli:"reggel",ebed:"del",vacsora:"este"};
@@ -661,6 +681,20 @@ const DAY_SH=["H","K","Sze","Cs","P","Szo","V"];
 const DAY_LO=["Hétfő","Kedd","Szerda","Csütörtök","Péntek","Szombat","Vasárnap"];
 const MON=["jan","feb","márc","ápr","máj","jún","júl","aug","szept","okt","nov","dec"];
 const TICK='<svg viewBox="0 0 24 24" width="13" height="13"><path d="M20 6 9 17l-5-5"/></svg>';
+/* egységes vonalas ikonszett (Lucide-stílus, currentColor) */
+const ICO={
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+  moon:'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
+  pencil:'<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+  sunrise:'<path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m8 6 4-4 4 4"/><path d="M16 18a4 4 0 0 0-8 0"/>',
+  sunset:'<path d="M12 10V2"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m16 6-4 4-4-4"/><path d="M16 18a4 4 0 0 0-8 0"/>',
+  utensils:'<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>',
+  pin:'<path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/>',
+  flame:'<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+  target:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>'
+};
+function ico(name,cls){return `<svg class="ico${cls?' '+cls:''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICO[name]||''}</svg>`;}
 
 /* ---------- persistence ---------- */
 const K_CATS="pl-cats-v1",K_ITEMS="pl-items-v3",K_CHECKS="napi-pipeline-checks-v1",K_THEME="pl-theme",
@@ -777,14 +811,14 @@ function renderDay(){
       <circle class="track" cx="60" cy="60" r="52"/><circle class="prog" cx="60" cy="60" r="52" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg>
       <div class="rc"><b><span class="num" data-key="pct" data-to="${pct}">0</span>%</b></div></div>
       <div class="mt"><div class="k">Ma kész</div><div class="mb"><span class="num" data-key="done" data-to="${done}">0</span> / ${checkItems.length}</div><div class="ms">${done===checkItems.length&&checkItems.length?'teljes nap ✦':'tétel'}</div></div></div>
-    <div class="stat streak"><div class="k">Sorozat</div><div class="fl">🔥</div><div class="sn"><span class="num" data-key="st" data-to="${st}">0</span></div><div class="ss">nap egymás után</div></div>
+    <div class="stat streak"><div class="k">Sorozat</div><div class="fl">${ico('flame')}</div><div class="sn"><span class="num" data-key="st" data-to="${st}">0</span></div><div class="ss">nap egymás után</div></div>
     <div class="stat wk"><div class="k">A heted</div><div class="wn"><span class="num" data-key="wk" data-to="${wkDone}">0</span><small> / 7 nap</small></div><div class="wkdots">${wkDots}</div></div>
   </div></div><div class="dg-main">`;
-  if(editMode)h+=`<button class="btn" id="mngBtn" style="width:100%;margin-bottom:16px;">⚙ Kategóriák kezelése</button>`;
+  if(editMode)h+=`<button class="btn" id="mngBtn" style="width:100%;margin-bottom:16px;">${ico('gear')} Kategóriák kezelése</button>`;
 
   const allday=partItems(d,"allday");
   if(allday.length||editMode){
-    h+=`<div class="allday"><div class="ah"><span class="ai">📌</span><span class="at">Egész nap</span></div><div class="arows">`;
+    h+=`<div class="allday"><div class="ah"><span class="ai">${ico('pin')}</span><span class="at">Egész nap</span></div><div class="arows">`;
     if(allday.length)allday.forEach(it=>h+=rowHTML(it,dISO));else h+=`<div class="emptyp">Nincs egész napos tétel ma.</div>`;
     if(editMode)h+=`<button class="addrow" data-add="allday">+ Tétel ide</button>`;
     h+=`</div></div>`;
@@ -798,15 +832,16 @@ function renderDay(){
     const meals=mealType?getMeals(dISO,mealType):[];
     if(!mealType&&!its.length&&!editMode)return;
     const ci=its.filter(i=>i.metric==="check"),cd=ci.filter(i=>getC(dISO,i.id)).length;
-    h+=`<div class="tlp ${nowPart===p.id?'now':''}"><div class="node">${p.icon}</div>
+    h+=`<div class="tlp ${nowPart===p.id?'now':''}"><div class="node">${ico(p.ico)}</div>
       <div class="ph"><span class="pn">${p.name}</span>${nowPart===p.id?'<span class="nowtag">most</span>':''}${ci.length?`<span class="pmeta">${cd}/${ci.length}</span>`:''}</div>
       <div class="card">`;
     its.forEach(it=>h+=rowHTML(it,dISO));
     if(mealType){
       const tgt=mealTarget(mealType),skc=slotKcal(dISO,mealType),sc=kcalClass(skc,tgt);
-      h+=`<div class="mealslot"><div class="slot-h">🎯 cél ~${tgt} kcal${meals.length?` · <span class="s-${sc}">betervezve <span class="bt">${ri(skc)}</span></span>`:''}</div>`;
-      meals.forEach((e,idx)=>h+=mealHTML(dISO,mealType,e,idx));
-      h+=`<button class="addmeal" data-addmeal="${mealType}">+ ${MEAL_LABEL[mealType]} hozzáadása</button></div>`;
+      h+=`<div class="mealslot"><div class="slot-h"><span class="ti">${ico('target')}</span> cél ~${tgt} kcal${meals.length?` · <span class="s-${sc}">betervezve <span class="bt">${ri(skc)}</span></span>`:''}</div>`;
+      if(meals.length)meals.forEach((e,idx)=>h+=mealHTML(dISO,mealType,e,idx));
+      else h+=`<div class="meal-empty">Nincs betervezve — tervezz az <b>Étrend</b> fülön.</div>`;
+      h+=`</div>`;
     }
     if(editMode)h+=`<button class="addrow" data-add="${p.id}">+ Teendő ide</button>`;
     h+=`</div></div>`;
@@ -816,23 +851,23 @@ function renderDay(){
 
   // daily macro summary (bento rail)
   const mac=dayMacros(dISO);
-  h+=`<div class="dg-macros"><div class="macros"><div class="mh"><span>🍽️</span><span class="t">Napi kalória & makró</span>
-    <span class="cal"><b><span class="num" data-key="kcaleat" data-to="${ri(mac.eat.kcal)}">0</span></b><span class="cal-t">/ ${ri(targets.kcal)} kcal</span></span></div><div class="mbody">`;
-  h+=macroRow("Kalória","kcal",mac.eat.kcal,mac.plan.kcal,targets.kcal,"#f59e0b","");
-  if(targets.p>0)h+=macroRow("Fehérje","p",mac.eat.p,mac.plan.p,targets.p,"#ef4444","g");
-  if(targets.c>0)h+=macroRow("Szénhidrát","c",mac.eat.c,mac.plan.c,targets.c,"#3b82f6","g");
-  if(targets.f>0)h+=macroRow("Zsír","f",mac.eat.f,mac.plan.f,targets.f,"#eab308","g");
-  h+=`<div class="ms-info">Szénhidrát <b>${ri(mac.eat.c)}</b> g · Zsír <b>${ri(mac.eat.f)}</b> g <span style="opacity:.6">(megevett · terv ${ri(mac.plan.c)}/${ri(mac.plan.f)} g)</span></div>`;
+  h+=`<div class="dg-macros"><div class="macros"><div class="mh"><span class="mi">${ico('utensils')}</span><span class="t">Napi terv</span>
+    <span class="cal"><b><span class="num" data-key="kcalplan" data-to="${ri(mac.plan.kcal)}">0</span></b><span class="cal-t">/ ${ri(targets.kcal)} kcal</span></span></div><div class="mbody">`;
+  h+=macroRow("Kalória",mac.plan.kcal,targets.kcal,"#f59e0b","");
+  if(targets.p>0)h+=macroRow("Fehérje",mac.plan.p,targets.p,"#ef4444","g");
+  if(targets.c>0)h+=macroRow("Szénhidrát",mac.plan.c,targets.c,"#3b82f6","g");
+  if(targets.f>0)h+=macroRow("Zsír",mac.plan.f,targets.f,"#eab308","g");
+  h+=`<div class="ms-info">Szénhidrát <b>${ri(mac.plan.c)}</b> g · Zsír <b>${ri(mac.plan.f)}</b> g <span style="opacity:.6">(a napi tervben)</span></div>`;
   h+=`</div></div></div>`; // close mbody, macros, dg-macros
   h+=`</div>`; // close day-grid
 
   viewEl.innerHTML=h;bindDay();
 }
-function macroRow(name,key,eatv,planv,target,color,unit){
-  target=target||1;const eatp=Math.min(100,eatv/target*100),planp=Math.min(100,planv/target*100),over=eatv>target*1.05;
+function macroRow(name,val,target,color,unit){
+  target=target||1;const p=Math.min(100,val/target*100),over=val>target*1.08;
   return `<div class="msrow" style="--mc:${color}"><div class="mst"><span class="nm">${name}</span>
-    <span class="vl"><b class="${over?'over':''}">${ri(eatv)}</b> / ${ri(target)}${unit} <span style="opacity:.7">· terv ${ri(planv)}${unit}</span></span></div>
-    <div class="msbar"><i class="plan" style="width:${planp}%"></i><i class="eat" style="width:${eatp}%"></i></div></div>`;
+    <span class="vl"><b class="${over?'over':''}">${ri(val)}</b> / ${ri(target)}${unit}</span></div>
+    <div class="msbar"><i class="eat" style="width:${p}%"></i></div></div>`;
 }
 function rowHTML(item,dISO){
   const cat=catOf(item.cat),v=getC(dISO,item.id);
@@ -847,14 +882,13 @@ function rowHTML(item,dISO){
 }
 function mealHTML(dISO,type,entry,idx){
   const fd=foodOf(entry.foodId);
-  if(!fd)return `<div class="meal"><span class="lbl">? (törölt étel)</span><div class="rowedit"><button class="del" data-rmmeal="${type}:${idx}">✕</button></div></div>`;
-  const m=fd.perPortion,q=entry.portions||1,on=entry.eaten;
+  if(!fd)return `<div class="meal"><span class="lbl" style="color:var(--faint)">? (törölt étel)</span></div>`;
+  const m=fd.perPortion,q=entry.portions||1;
   const ing=(fd.ingredients||"").split('\n').filter(x=>x.trim());
-  return `<div class="meal ${on?'eaten':''}" data-mealidx="${type}:${idx}">
-    <div class="box ${on?'on':''}" data-eat="${type}:${idx}">${TICK}</div>
+  return `<div class="meal" data-mealidx="${type}:${idx}">
+    <span class="mdot"></span>
     <div class="mb" data-exp="${type}:${idx}"><div class="mn">${esc(fd.name)}${q!==1?`<span class="mx">×${r1(q)}</span>`:''} <span class="chev">▸</span></div>
-      <div class="mm">${ri(m.kcal*q)} kcal · ${ri(m.p*q)}f ${ri(m.c*q)}sz ${ri(m.f*q)}z</div></div>
-    <div class="rowedit"><button data-editmeal="${entry.foodId}">✎</button><button class="del" data-rmmeal="${type}:${idx}">✕</button></div>
+      <div class="mm">${ri(m.kcal*q)} kcal · ${ri(m.p*q)} g fehérje</div></div>
   </div>
   <div class="recipe" data-recipe="${type}:${idx}">
     ${ing.length?`<h5>Hozzávalók${fd.portionsPerCook>1?` — 1 főzés = ${fd.portionsPerCook} adag`:''}</h5><ul>${ing.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}
@@ -888,7 +922,7 @@ function renderWeek(){
   const hoursG=items.filter(i=>i.metric==="hours");
   const countG=items.filter(i=>i.metric==="check"&&Array.isArray(i.days)&&i.days.length<=4);
   if(hoursG.length||countG.length){
-    h+=`<div class="wkgoals"><div class="gh"><span>🎯</span><span class="t">Heti célok</span></div><div class="gb">`;
+    h+=`<div class="wkgoals"><div class="gh"><span class="gi">${ico('target')}</span><span class="t">Heti célok</span></div><div class="gb">`;
     hoursG.forEach(it=>{const cat=catOf(it.cat),cur=weekHours(it,curDate),pct=Math.min(100,Math.round(cur/it.goal*100)),met=cur>=it.goal;
       h+=goalHTML(cat,it.label,pct,met,'g-'+it.id,cur,it.goal+'ó',true);});
     countG.forEach(it=>{const cat=catOf(it.cat),w=weekAssignedDone(it,curDate),pct=w.total?Math.round(w.done/w.total*100):0,met=w.done>=w.total&&w.total>0;
@@ -899,7 +933,7 @@ function renderWeek(){
   days.forEach(d=>{const t=iso(d)===todayISO;h+=`<th class="${t?'tdy':''}">${DAY_SH[wd(d)]}<span class="dn">${d.getDate()}</span></th>`;});
   h+=`</tr></thead><tbody>`;
   PARTS.forEach(p=>{if(!days.some(d=>partItems(d,p.id).length))return;
-    h+=`<tr><td class="plabel"><span class="pe">${p.icon}</span>${p.name}</td>`;
+    h+=`<tr><td class="plabel"><span class="pe">${ico(p.ico)}</span>${p.name}</td>`;
     days.forEach(d=>{const dISO=iso(d),t=dISO===todayISO,its=partItems(d,p.id),fut=d>new Date()&&!t;
       h+=`<td><div class="daycell ${t?'tdycol':''}">`;
       its.forEach(it=>{const cat=catOf(it.cat),v=getC(dISO,it.id);
@@ -934,7 +968,7 @@ function renderPlan(){
   days.forEach(d=>{const t=iso(d)===todayISO;h+=`<th class="${t?'tdy':''}">${DAY_SH[wd(d)]}<span class="dn">${d.getDate()}</span></th>`;});
   h+=`</tr></thead><tbody>`;
   MEAL_ORDER.forEach(type=>{const tgt=mealTarget(type);
-    h+=`<tr><td class="plabel"><span class="pe">${PARTS.find(p=>p.id===MEAL_PART[type]).icon}</span>${MEAL_LABEL[type]}<span class="ptar">cél ~${tgt} kcal</span></td>`;
+    h+=`<tr><td class="plabel"><span class="pe">${ico(PARTS.find(p=>p.id===MEAL_PART[type]).ico)}</span>${MEAL_LABEL[type]}<span class="ptar">cél ~${tgt} kcal</span></td>`;
     days.forEach(d=>{const dISO=iso(d),t=dISO===todayISO,ms=getMeals(dISO,type);
       h+=`<td><div class="plan-cell ${t?'tdycol':''}" data-plan="${dISO}:${type}">`;
       if(ms.length){ms.forEach(e=>{const fd=foodOf(e.foodId);h+=`<div class="mfood">${fd?esc(fd.name):'?'}${e.portions&&e.portions!==1?` ×${r1(e.portions)}`:''}</div>`;});
