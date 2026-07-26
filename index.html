@@ -339,6 +339,8 @@ td.pl-total .u{font-size:9px;color:var(--muted);font-weight:500;display:block;}
 .btn.prim:hover{filter:brightness(1.08);}
 .btn.danger{background:transparent;border-color:#ef444455;color:#f87171;}
 .btn.danger:hover{background:#ef444418;border-color:#ef4444;}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);z-index:90;background:var(--panel-solid);border:1px solid var(--border-2);color:var(--text);padding:12px 20px;border-radius:14px;font-weight:600;font-size:13.5px;box-shadow:0 20px 50px -15px rgba(0,0,0,.7);opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;max-width:90vw;text-align:center;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .hint{font-size:11.5px;color:var(--muted);margin-top:6px;}
 .mngcats{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
 .mngcats .cc{display:flex;align-items:center;gap:10px;padding:9px 11px;background:var(--bg-2);border:1px solid var(--border);border-radius:11px;}
@@ -534,8 +536,32 @@ td.pl-total .u{font-size:9px;color:var(--muted);font-weight:500;display:block;}
   <div class="m-actions"><div class="spacer"></div><button class="btn" id="tpl-close">Bezár</button></div>
 </div></div>
 
+<div class="overlay" id="cfOv"><div class="modal" style="max-width:400px">
+  <h3 id="cf-title">Megerősítés</h3>
+  <div class="msub2" id="cf-msg" style="margin-bottom:18px"></div>
+  <div class="m-actions"><div class="spacer"></div><button class="btn" id="cf-no">Mégse</button><button class="btn prim" id="cf-yes">OK</button></div>
+</div></div>
+
+<div id="toast" class="toast"></div>
+
 <script>
 "use strict";
+/* ---------- app dialogs (natív confirm/alert helyett, ami PWA-ban letiltható) ---------- */
+let _cfResolve=null;
+function uiConfirm(msg,okLabel){
+  return new Promise(res=>{
+    _cfResolve=res;
+    document.getElementById('cf-msg').textContent=msg;
+    document.getElementById('cf-yes').textContent=okLabel||'OK';
+    document.getElementById('cfOv').classList.add('show');
+  });
+}
+function _cfClose(v){document.getElementById('cfOv').classList.remove('show');const r=_cfResolve;_cfResolve=null;if(r)r(v);}
+document.getElementById('cf-yes').addEventListener('click',()=>_cfClose(true));
+document.getElementById('cf-no').addEventListener('click',()=>_cfClose(false));
+document.getElementById('cfOv').addEventListener('click',e=>{if(e.target.id==='cfOv')_cfClose(false);});
+let _toastT=null;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(_toastT);_toastT=setTimeout(()=>t.classList.remove('show'),2400);}
 /* ---------- dayparts ---------- */
 const PARTS=[
   {id:"allday",name:"Egész nap",icon:"📌",allday:true},
@@ -905,7 +931,7 @@ iEvery.addEventListener('change',()=>{if(iEvery.checked)selDays=new Set([0,1,2,3
 function syncDays(){document.querySelectorAll('#i-days button').forEach(b=>b.classList.toggle('on',selDays.has(+b.dataset.d)));iEvery.checked=selDays.size===7;}
 iMetric.addEventListener('change',()=>{document.getElementById('i-goalFld').style.display=iMetric.value==="hours"?"block":"none";});
 function fillCatSel(){iCat.innerHTML=cats.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');}
-function openItem(id,presetPart){if(!cats.length){alert("Előbb hozz létre kategóriát.");return;}
+function openItem(id,presetPart){if(!cats.length){toast("Előbb hozz létre kategóriát.");return;}
   editingItem=id;fillCatSel();const it=id?items.find(i=>i.id===id):null;
   document.getElementById('itemTitle').textContent=id?"Tétel szerkesztése":"Új teendő";
   iLabel.value=it?it.label:"";iPart.value=it?it.part:(presetPart||"reggel");iCat.value=it?it.cat:cats[0].id;
@@ -916,13 +942,13 @@ function openItem(id,presetPart){if(!cats.length){alert("Előbb hozz létre kate
   itemOv.classList.add('show');setTimeout(()=>iLabel.focus(),60);}
 const closeItem=()=>{itemOv.classList.remove('show');editingItem=null;};
 document.getElementById('i-save').addEventListener('click',()=>{const label=iLabel.value.trim();if(!label){iLabel.focus();return;}
-  if(!selDays.size){alert("Válassz legalább egy napot.");return;}
+  if(!selDays.size){toast("Válassz legalább egy napot.");return;}
   const days=selDays.size===7?"daily":[...selDays].sort((a,b)=>a-b);
   const metric=iMetric.value,goal=metric==="hours"?(parseFloat(iGoal.value)||1):undefined;
   if(editingItem)Object.assign(items.find(i=>i.id===editingItem),{label,part:iPart.value,cat:iCat.value,days,metric,goal});
   else items.push({id:slug(label),label,part:iPart.value,cat:iCat.value,days,metric,goal});
   saveItems();closeItem();render();});
-function delItem(id){if(confirm("Törlöd ezt a teendőt?")){items=items.filter(i=>i.id!==id);saveItems();render();}}
+async function delItem(id){if(await uiConfirm("Törlöd ezt a teendőt?","Törlés")){items=items.filter(i=>i.id!==id);saveItems();render();}}
 document.getElementById('i-del').addEventListener('click',()=>{if(editingItem){const id=editingItem;closeItem();delItem(id);}});
 document.getElementById('i-cancel').addEventListener('click',closeItem);
 itemOv.addEventListener('click',e=>{if(e.target===itemOv)closeItem();});
@@ -945,8 +971,8 @@ const closeCat=()=>{catOv.classList.remove('show');editingCat=null;};
 document.getElementById('c-save').addEventListener('click',()=>{const name=cName.value.trim();if(!name){cName.focus();return;}
   if(editingCat)Object.assign(catOf(editingCat),{name,color:selColor,icon:selIcon});else cats.push({id:slug(name),name,color:selColor,icon:selIcon});
   saveCats();closeCat();renderMng();render();});
-document.getElementById('c-del').addEventListener('click',()=>{if(!editingCat)return;const n=items.filter(i=>i.cat===editingCat).length;
-  if(confirm(`Törlöd a(z) "${catOf(editingCat).name}" kategóriát${n?` és a benne lévő ${n} teendőt`:''}?`)){
+document.getElementById('c-del').addEventListener('click',async()=>{if(!editingCat)return;const n=items.filter(i=>i.cat===editingCat).length;
+  if(await uiConfirm(`Törlöd a(z) "${catOf(editingCat).name}" kategóriát${n?` és a benne lévő ${n} teendőt`:''}?`,"Törlés")){
     items=items.filter(i=>i.cat!==editingCat);cats=cats.filter(c=>c.id!==editingCat);saveCats();saveItems();closeCat();renderMng();render();}});
 document.getElementById('c-cancel').addEventListener('click',closeCat);
 catOv.addEventListener('click',e=>{if(e.target===catOv)closeCat();});
@@ -980,10 +1006,10 @@ function exportData(){
 }
 function importData(file){
   const r=new FileReader();
-  r.onload=()=>{let d;try{d=JSON.parse(r.result);}catch(e){alert('Hibás mentésfájl (nem olvasható JSON).');return;}
-    if(!d||typeof d!=='object'){alert('Hibás mentésfájl.');return;}
-    if(d._app!=='LevaiL OS'&&!confirm('Ez nem LevaiL OS mentésnek tűnik. Mégis visszaállítod?'))return;
-    if(!confirm('A visszaállítás FELÜLÍRJA az eszköz jelenlegi adatait. Folytatod?'))return;
+  r.onload=async()=>{let d;try{d=JSON.parse(r.result);}catch(e){toast('Hibás mentésfájl (nem olvasható JSON).');return;}
+    if(!d||typeof d!=='object'){toast('Hibás mentésfájl.');return;}
+    if(d._app!=='LevaiL OS'&&!(await uiConfirm('Ez nem LevaiL OS mentésnek tűnik. Mégis visszaállítod?')))return;
+    if(!(await uiConfirm('A visszaállítás FELÜLÍRJA az eszköz jelenlegi adatait. Folytatod?','Visszaállítás')))return;
     BACKUP_KEYS.forEach(k=>{if(typeof d[k]==='string')localStorage.setItem(k,d[k]);});
     location.reload();};
   r.readAsText(file);
@@ -1038,14 +1064,14 @@ setOv.addEventListener('click',e=>{if(e.target===setOv)setOv.classList.remove('s
 const foodOv=document.getElementById('foodOv');let editingFood=null,fdMeals=new Set();
 document.getElementById('fd-meals').innerHTML=MEAL_ORDER.map(t=>`<button type="button" data-fm="${t}">${MEAL_LABEL[t]}</button>`).join('');
 document.querySelectorAll('#fd-meals button').forEach(b=>b.addEventListener('click',()=>{const t=b.dataset.fm;if(fdMeals.has(t))fdMeals.delete(t);else fdMeals.add(t);b.classList.toggle('on',fdMeals.has(t));}));
-function seedRecipes(){
-  if(foods.length && !confirm('Ez lecseréli az ÖSSZES ételedet a tiszta alapkészletre ('+DEFAULT_FOODS.length+' recept). A saját, kézzel felvett ételeid is eltűnnek. Folytatod?'))return;
+async function seedRecipes(){
+  if(foods.length && !(await uiConfirm('Ez lecseréli az ÖSSZES ételedet a tiszta alapkészletre ('+DEFAULT_FOODS.length+' recept). A saját, kézzel felvett ételeid is eltűnnek. Folytatod?','Visszaállítás')))return;
   foods=DEFAULT_FOODS.map(f=>JSON.parse(JSON.stringify(f)));
   // Árva heti-terv bejegyzések takarítása (törölt ételre mutató entry-k)
   const ids=new Set(foods.map(f=>f.id));
   Object.keys(plan).forEach(d=>{const day=plan[d];if(!day)return;Object.keys(day).forEach(slot=>{if(Array.isArray(day[slot]))day[slot]=day[slot].filter(e=>ids.has(e.foodId));});});
   saveFoods();savePlan();render();
-  alert('Kész — az ételeid visszaálltak a tiszta alapkészletre ('+foods.length+' recept).');}
+  toast('Kész — '+foods.length+' recept visszaállítva ✓');}
 function openFood(id){editingFood=id;const fd=id?foodOf(id):null;
   document.getElementById('foodTitle').textContent=id?"Étel szerkesztése":"Új étel";
   document.getElementById('fd-name').value=fd?fd.name:"";
@@ -1063,14 +1089,14 @@ function openFood(id){editingFood=id;const fd=id?foodOf(id):null;
 const closeFood=()=>{foodOv.classList.remove('show');editingFood=null;};
 document.getElementById('fd-save').addEventListener('click',()=>{
   const name=document.getElementById('fd-name').value.trim();if(!name){document.getElementById('fd-name').focus();return;}
-  if(!fdMeals.size){alert("Válaszd ki, melyik étkezéshez való.");return;}
+  if(!fdMeals.size){toast("Válaszd ki, melyik étkezéshez való.");return;}
   const data={name,meals:[...fdMeals],portionsPerCook:Math.max(1,ri(document.getElementById('fd-por').value)||1),
     perPortion:{kcal:ri(document.getElementById('fd-kcal').value),p:ri(document.getElementById('fd-p').value),c:ri(document.getElementById('fd-c').value),f:ri(document.getElementById('fd-f').value)},
     ingredients:document.getElementById('fd-ing').value.trim(),recipe:document.getElementById('fd-rec').value.trim()};
   if(editingFood)Object.assign(foodOf(editingFood),data);else foods.push(Object.assign({id:slug(name)},data));
   saveFoods();closeFood();if(pickOv.classList.contains('show'))renderPickFoods();render();});
-document.getElementById('fd-del').addEventListener('click',()=>{if(!editingFood)return;
-  if(confirm("Törlöd ezt az ételt? A betervezett étkezésekből is eltűnik.")){foods=foods.filter(f=>f.id!==editingFood);saveFoods();closeFood();render();}});
+document.getElementById('fd-del').addEventListener('click',async()=>{if(!editingFood)return;
+  if(await uiConfirm("Törlöd ezt az ételt? A betervezett étkezésekből is eltűnik.","Törlés")){foods=foods.filter(f=>f.id!==editingFood);saveFoods();closeFood();render();}});
 document.getElementById('fd-cancel').addEventListener('click',closeFood);
 foodOv.addEventListener('click',e=>{if(e.target===foodOv)closeFood();});
 
@@ -1180,11 +1206,11 @@ function renderCook(){const days=weekOf(curDate),per={};
     h+=`<div class="cook-item"><div class="ci-n">${cooks}<small>főzés</small></div><div class="ci-b"><div class="ci-food">${esc(fd.name)}</div>
       <div class="ci-meta">${r1(p.por)} adag kell · 1 főzés = ${fd.portionsPerCook||1} adag · ${dn}</div></div></div>`;});
   document.getElementById('cookSub').textContent=weekLabel();document.getElementById('cookBody').innerHTML=h;}
-function generateWeek(){
-  if(!foods.length){alert('Előbb vegyél fel ételeket (📖 Alapreceptek).');return;}
+async function generateWeek(){
+  if(!foods.length){toast('Előbb vegyél fel ételeket (🔄 Alapreceptek).');return;}
   const cur=weekOf(curDate);
   const has=cur.some(d=>{const p=plan[iso(d)];return p&&Object.keys(p).length;});
-  if(has&&!confirm('A generálás felülírja az aktuális hét tervét. Folytatod?'))return;
+  if(has&&!(await uiConfirm('A generálás felülírja az aktuális hét tervét. Folytatod?','Generálás')))return;
   cur.forEach(d=>{if(plan[iso(d)])delete plan[iso(d)];});
   MEAL_ORDER.forEach(type=>{
     let cand=foods.filter(f=>f.meals&&f.meals.includes(type));
@@ -1202,14 +1228,14 @@ function generateWeek(){
   });
   savePlan();render();
 }
-function copyLastWeek(){const cur=weekOf(curDate),prev=weekOf(addD(curDate,-7));
+async function copyLastWeek(){const cur=weekOf(curDate),prev=weekOf(addD(curDate,-7));
   const has=cur.some(d=>{const p=plan[iso(d)];return p&&Object.keys(p).length;});
-  if(has&&!confirm('Az aktuális hét terve felülíródik a múlt hetivel. Folytatod?'))return;
+  if(has&&!(await uiConfirm('Az aktuális hét terve felülíródik a múlt hetivel. Folytatod?','Másolás')))return;
   let any=false;cur.forEach((d,i)=>{const src=iso(prev[i]),dst=iso(d);if(plan[dst])delete plan[dst];
     MEAL_ORDER.forEach(t=>{const s=getMeals(src,t);if(s.length){any=true;planEnsure(dst,t);plan[dst][t]=s.map(e=>({foodId:e.foodId,portions:e.portions,eaten:false}));}});});
-  savePlan();if(!any)alert('A múlt héten nincs betervezett étkezés.');render();}
-function clearWeek(){const cur=weekOf(curDate),has=cur.some(d=>{const p=plan[iso(d)];return p&&Object.keys(p).length;});
-  if(!has){alert('Ez a hét már üres.');return;}if(!confirm('Töröljük a hét összes betervezett étkezését?'))return;
+  savePlan();if(!any)toast('A múlt héten nincs betervezett étkezés.');render();}
+async function clearWeek(){const cur=weekOf(curDate),has=cur.some(d=>{const p=plan[iso(d)];return p&&Object.keys(p).length;});
+  if(!has){toast('Ez a hét már üres.');return;}if(!(await uiConfirm('Töröljük a hét összes betervezett étkezését?','Törlés')))return;
   cur.forEach(d=>{if(plan[iso(d)])delete plan[iso(d)];});savePlan();render();}
 function openTpl(){document.getElementById('tpl-name').value='';renderTplList();document.getElementById('tplOv').classList.add('show');}
 function renderTplList(){const el=document.getElementById('tplList');
@@ -1220,18 +1246,18 @@ function renderTplList(){const el=document.getElementById('tplList');
 function saveTpl(){const name=document.getElementById('tpl-name').value.trim();if(!name){document.getElementById('tpl-name').focus();return;}
   const cur=weekOf(curDate),meals={};let any=false;
   cur.forEach((d,i)=>{const dISO=iso(d);MEAL_ORDER.forEach(t=>{const s=getMeals(dISO,t);if(s.length){any=true;(meals[i]=meals[i]||{})[t]=s.map(e=>({foodId:e.foodId,portions:e.portions}));}});});
-  if(!any){alert('Az aktuális hét üres — nincs mit sablonként menteni.');return;}
+  if(!any){toast('Az aktuális hét üres — nincs mit sablonként menteni.');return;}
   templates.push({id:'t'+Date.now().toString(36),name,meals});saveTemplates();document.getElementById('tpl-name').value='';renderTplList();}
-function applyTpl(id){const t=templates.find(x=>x.id===id);if(!t)return;const cur=weekOf(curDate);
+async function applyTpl(id){const t=templates.find(x=>x.id===id);if(!t)return;const cur=weekOf(curDate);
   const has=cur.some(d=>{const p=plan[iso(d)];return p&&Object.keys(p).length;});
-  if(has&&!confirm('Az aktuális hét terve felülíródik a sablonnal. Folytatod?'))return;
+  if(has&&!(await uiConfirm('Az aktuális hét terve felülíródik a sablonnal. Folytatod?','Alkalmaz')))return;
   cur.forEach((d,i)=>{const dISO=iso(d);if(plan[dISO])delete plan[dISO];const md=t.meals[i];
     if(md)MEAL_ORDER.forEach(tt=>{if(md[tt]){planEnsure(dISO,tt);plan[dISO][tt]=md[tt].map(e=>({foodId:e.foodId,portions:e.portions,eaten:false}));}});});
   savePlan();document.getElementById('tplOv').classList.remove('show');render();}
 // static bindings for meal-tool modals
 document.getElementById('shop-share').addEventListener('click',async()=>{const text=shopShareText();
-  try{if(navigator.share){await navigator.share({text});}else{await navigator.clipboard.writeText(text);alert('Vágólapra másolva ✓');}}
-  catch(e){try{await navigator.clipboard.writeText(text);alert('Vágólapra másolva ✓');}catch(_){alert('Nem sikerült megosztani.');}}});
+  try{if(navigator.share){await navigator.share({text});}else{await navigator.clipboard.writeText(text);toast('Vágólapra másolva ✓');}}
+  catch(e){try{await navigator.clipboard.writeText(text);toast('Vágólapra másolva ✓');}catch(_){toast('Nem sikerült megosztani.');}}});
 document.getElementById('shop-close').addEventListener('click',()=>document.getElementById('shopOv').classList.remove('show'));
 document.getElementById('cook-close').addEventListener('click',()=>document.getElementById('cookOv').classList.remove('show'));
 document.getElementById('tpl-close').addEventListener('click',()=>document.getElementById('tplOv').classList.remove('show'));
