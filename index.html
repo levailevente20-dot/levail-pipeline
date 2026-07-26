@@ -410,9 +410,11 @@ td.pl-total .u{font-size:9px;color:var(--muted);font-weight:500;display:block;}
 .tlp .card .row:hover::before,.allday .arows .row:hover::before{opacity:1;top:6px;bottom:6px;}
 .tlp .card .row.done::before{opacity:.28;}
 /* daily macro tile emphasis */
-.macros .mh{padding:15px 18px 12px;}
+.macros .mh{padding:15px 18px 12px;align-items:flex-start;}
 .macros .mh .t{font-size:15px;}
-.macros .mh .cal b{font-size:22px;}
+.macros .mh .cal{display:flex;flex-direction:column;align-items:flex-end;line-height:1.05;white-space:nowrap;}
+.macros .mh .cal b{font-size:24px;color:var(--text);}
+.macros .mh .cal .cal-t{font-size:11.5px;color:var(--muted);font-weight:600;margin-top:3px;}
 .dg-macros .macros{border-color:var(--border-2);}
 /* tabular numerals for aligned figures */
 .num,.mom .mt .mb,.stat.streak .sn,.stat.wk .wn,.macros .mh .cal,.msrow .vl,.pl-total,.si-qty,.pip.hrs,.datenav .dl .d1{font-variant-numeric:tabular-nums;}
@@ -815,7 +817,7 @@ function renderDay(){
   // daily macro summary (bento rail)
   const mac=dayMacros(dISO);
   h+=`<div class="dg-macros"><div class="macros"><div class="mh"><span>🍽️</span><span class="t">Napi kalória & makró</span>
-    <span class="cal"><b><span class="num" data-key="kcaleat" data-to="${ri(mac.eat.kcal)}">0</span></b> / ${ri(targets.kcal)} kcal</span></div><div class="mbody">`;
+    <span class="cal"><b><span class="num" data-key="kcaleat" data-to="${ri(mac.eat.kcal)}">0</span></b><span class="cal-t">/ ${ri(targets.kcal)} kcal</span></span></div><div class="mbody">`;
   h+=macroRow("Kalória","kcal",mac.eat.kcal,mac.plan.kcal,targets.kcal,"#f59e0b","");
   if(targets.p>0)h+=macroRow("Fehérje","p",mac.eat.p,mac.plan.p,targets.p,"#ef4444","g");
   if(targets.c>0)h+=macroRow("Szénhidrát","c",mac.eat.c,mac.plan.c,targets.c,"#3b82f6","g");
