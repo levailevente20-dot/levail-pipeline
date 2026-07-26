@@ -441,6 +441,9 @@ td.plabel .pe .ico{width:15px;height:15px;}
 .meal .mdot{width:9px;height:9px;border-radius:3px;background:var(--meal);flex:0 0 auto;box-shadow:0 0 8px -1px var(--meal);margin:0 3px 0 2px;}
 .meal-empty{font-size:12.5px;color:var(--faint);font-style:italic;padding:8px 8px 5px;}
 .meal-empty b{color:var(--muted);font-style:normal;}
+.recipe .mac-detail{display:flex;flex-wrap:wrap;gap:7px 18px;margin-bottom:4px;}
+.recipe .mac-detail span{font-size:13px;color:var(--muted);}
+.recipe .mac-detail b{color:var(--text);font-family:'Space Grotesk',sans-serif;font-weight:700;font-variant-numeric:tabular-nums;}
 </style>
 </head>
 <body>
@@ -885,16 +888,14 @@ function mealHTML(dISO,type,entry,idx){
   const fd=foodOf(entry.foodId);
   if(!fd)return `<div class="meal"><span class="lbl" style="color:var(--faint)">? (törölt étel)</span></div>`;
   const m=fd.perPortion,q=entry.portions||1;
-  const ing=(fd.ingredients||"").split('\n').filter(x=>x.trim());
   return `<div class="meal" data-mealidx="${type}:${idx}">
     <span class="mdot"></span>
     <div class="mb" data-exp="${type}:${idx}"><div class="mn">${esc(fd.name)}${q!==1?`<span class="mx">×${r1(q)}</span>`:''} <span class="chev">▸</span></div>
       <div class="mm">${ri(m.kcal*q)} kcal · ${ri(m.p*q)} g fehérje${q===1?` <span style="opacity:.55">/ adag</span>`:''}</div></div>
   </div>
   <div class="recipe" data-recipe="${type}:${idx}">
-    ${ing.length?`<h5>Hozzávalók${fd.portionsPerCook>1?` — a teljes főzéshez (${fd.portionsPerCook} adag)`:''}</h5><ul>${ing.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}
+    <div class="mac-detail"><span><b>${ri(m.kcal*q)}</b> kcal</span><span><b>${ri(m.p*q)}</b> g fehérje</span><span><b>${ri(m.c*q)}</b> g szénhidrát</span><span><b>${ri(m.f*q)}</b> g zsír</span></div>
     ${fd.recipe?`<h5>Elkészítés</h5><p>${esc(fd.recipe)}</p>`:''}
-    ${!ing.length&&!fd.recipe?'<p style="color:var(--faint)">Nincs recept megadva.</p>':''}
   </div>`;
 }
 function bindDay(){
